@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step6 動畫 — 0~9 計數（除頻 + 計數 + 解碼）</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .plate{fill:#0d1526;stroke:#2c3a5c}
+  .seg{fill:#1b2740;stroke:#2c3a5c;stroke-width:1.5;transition:fill .15s,filter .15s}
+  .pwire{fill:#222e49;transition:fill .15s,filter .15s}
+  .pwire.on{fill:var(--accent);filter:drop-shadow(0 0 6px #ffd54a)}
+  .seg.lit{fill:var(--accent);stroke:#ffe89a;filter:drop-shadow(0 0 10px #ffd54a)}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .big{font-size:28px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+  .bar-bg{fill:#0d1526;stroke:#2c3a5c}
+  .bar-fg{fill:var(--green);transition:width .1s}
+  .led{fill:#1b2740;stroke:#2c3a5c;transition:fill .12s}
+  .led.on{fill:var(--green);stroke:#7dffb0;filter:drop-shadow(0 0 8px #38e07b)}
+
+  /* ==== 返回主頁按鈕 ==== */
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;
+    padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;
+    box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step6 動畫 — 0~9 計數</h1>
+  <div class="sub">
+    把「每秒 tick」拿來當「數字 +1」的觸發，再接上解碼器，顯示器就會自己數。<br>
+    路徑：<b>12MHz → 除頻成 1Hz tick → units +1 → 解碼器 → 顯示器</b>
+  </div>
+
+  <div class="chapters" id="chapters">
+    <button data-ch="1" class="on">① 除頻</button>
+    <button data-ch="2">② units +1</button>
+    <button data-ch="3">③ 解碼</button>
+    <button data-ch="4">④ 位數致能</button>
+    <button data-ch="5">⑤ 完整</button>
+  </div>
+
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 530" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gChip" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b2a48"/><stop offset="1" stop-color="#121d33"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 程式碼 -->
+      <g id="gCode">
+        <rect x="20" y="60" width="330" height="330" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">step6 程式碼</text>
+        <text x="40" y="118" class="mono" style="font-size:12px" fill="#9fd4ff">reg [23:0] tick = 0;</text>
+        <text x="40" y="140" class="mono" style="font-size:12px" fill="#9fd4ff">always @(posedge clk12) begin</text>
+        <text x="52" y="162" class="mono" style="font-size:12px" fill="#9fd4ff">if (tick == 24'd11_999_999)</text>
+        <text x="64" y="184" class="mono" style="font-size:12px" fill="#9fd4ff">tick &lt;= 0;</text>
+        <text x="64" y="206" class="mono" style="font-size:12px" fill="#9fd4ff">units &lt;= (units==9)?0:units+1;</text>
+        <text x="52" y="228" class="mono" style="font-size:12px" fill="#9fd4ff">else tick &lt;= tick + 1;</text>
+        <text x="40" y="250" class="mono" style="font-size:12px" fill="#9fd4ff">end</text>
+        <text x="40" y="284" class="mono" style="font-size:12px" fill="#9fd4ff">seven_seg_decoder dec(</text>
+        <text x="52" y="304" class="mono" style="font-size:12px" fill="#9fd4ff">.digit(units), .seg(seg));</text>
+        <text x="40" y="336" class="mono" style="font-size:12px" fill="#9fd4ff">assign dig1 = 0; dig2 = 1;</text>
+      </g>
+
+      <!-- FPGA -->
+      <g id="gFpga">
+        <rect x="380" y="60" width="280" height="330" rx="16" fill="url(#gChip)" class="chip"/>
+        <text x="520" y="88" text-anchor="middle" class="lbl-strong">FPGA</text>
+
+        <!-- tick 進度條 -->
+        <text x="400" y="124" class="lbl" style="font-size:11px">tick（數到 1200 萬 = 1 秒）</text>
+        <rect x="400" y="134" width="240" height="14" rx="7" class="bar-bg"/>
+        <rect id="bar" x="400" y="134" width="0" height="14" rx="7" class="bar-fg"/>
+        <circle id="tickLed" class="led" cx="660" cy="128" r="6"/>
+
+        <!-- units -->
+        <text x="400" y="180" class="lbl" style="font-size:11px">units（0~9）</text>
+        <rect x="400" y="190" width="60" height="40" rx="8" class="plate"/>
+        <text id="unitsNum" x="430" y="217" class="big" style="font-size:24px">0</text>
+
+        <!-- 解碼器 -->
+        <text x="490" y="180" class="lbl" style="font-size:11px">解碼器</text>
+        <rect x="490" y="190" width="150" height="40" rx="8" class="plate"/>
+        <text id="segCode" x="565" y="215" text-anchor="middle" class="lbl" style="font-size:11px;fill:#ffd54a">seg = 1111110</text>
+
+        <text x="520" y="270" text-anchor="middle" class="lbl" style="font-size:11px">→ a~g 腳 + dig1(0) dig2(1)</text>
+        <text x="520" y="296" text-anchor="middle" class="lbl" style="font-size:11px">每秒 tick 一次 → units +1</text>
+        <text x="520" y="322" text-anchor="middle" class="lbl" style="font-size:11px;fill:#38e07b">數到 9 歸 0，循環</text>
+      </g>
+
+      <!-- 顯示器 -->
+      <g id="gDisp">
+        <rect x="740" y="60" width="200" height="330" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="840" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">7 段顯示器</text>
+        <g id="segs">
+          <rect id="segA" class="seg" x="805" y="125" width="70" height="10" rx="3"/>
+          <rect id="segB" class="seg" x="875" y="135" width="10" height="70" rx="3"/>
+          <rect id="segC" class="seg" x="875" y="215" width="10" height="70" rx="3"/>
+          <rect id="segD" class="seg" x="805" y="285" width="70" height="10" rx="3"/>
+          <rect id="segE" class="seg" x="795" y="215" width="10" height="70" rx="3"/>
+          <rect id="segF" class="seg" x="795" y="135" width="10" height="70" rx="3"/>
+          <rect id="segG" class="seg" x="805" y="205" width="70" height="10" rx="3"/>
+        </g>
+        <text id="dispLbl" x="840" y="322" text-anchor="middle" class="lbl" style="font-size:12px">目前顯示：0</text>
+        <rect id="digBox1" class="led" x="805" y="338" width="30" height="12" rx="4"/>
+        <text x="820" y="364" text-anchor="middle" class="lbl" style="font-size:10px">dig1</text>
+        <rect id="digBox2" class="led" x="855" y="338" width="30" height="12" rx="4"/>
+        <text x="870" y="364" text-anchor="middle" class="lbl" style="font-size:10px">dig2</text>
+      </g>
+
+      <rect id="hlCode" x="20" y="60" width="330" height="330" rx="14" class="hl-box"/>
+      <rect id="hlFpga" x="380" y="60" width="280" height="330" rx="16" class="hl-box"/>
+      <rect id="hlDisp" x="740" y="60" width="200" height="330" rx="14" class="hl-box"/>
+    
+      <!-- ==== PMOD 訊號列（有訊號的線會亮） ==== -->
+      <g id="gPmod">
+        <text x="550" y="478" text-anchor="middle" class="lbl" style="font-size:11px">PMOD 排線（有訊號的線會亮）</text>
+        <g id="pmodRow">
+          <rect id="pa" class="pwire" x="210" y="490" width="95" height="11" rx="3"/>
+          <text x="257" y="516" text-anchor="middle" class="lbl" style="font-size:9px">a</text>
+          <rect id="pb" class="pwire" x="315" y="490" width="95" height="11" rx="3"/>
+          <text x="362" y="516" text-anchor="middle" class="lbl" style="font-size:9px">b</text>
+          <rect id="pc" class="pwire" x="420" y="490" width="95" height="11" rx="3"/>
+          <text x="467" y="516" text-anchor="middle" class="lbl" style="font-size:9px">c</text>
+          <rect id="pd" class="pwire" x="525" y="490" width="95" height="11" rx="3"/>
+          <text x="572" y="516" text-anchor="middle" class="lbl" style="font-size:9px">d</text>
+          <rect id="pe" class="pwire" x="630" y="490" width="95" height="11" rx="3"/>
+          <text x="677" y="516" text-anchor="middle" class="lbl" style="font-size:9px">e</text>
+          <rect id="pf" class="pwire" x="735" y="490" width="95" height="11" rx="3"/>
+          <text x="782" y="516" text-anchor="middle" class="lbl" style="font-size:9px">f</text>
+          <rect id="pg" class="pwire" x="840" y="490" width="95" height="11" rx="3"/>
+          <text x="887" y="516" text-anchor="middle" class="lbl" style="font-size:9px">g</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。動畫每 1.2 秒數一格。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CH = 5; let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  const CODE = ['1111110','0110000','1101101','1111001','0110011',
+                '1011011','1011111','1110000','1111111','1111011'];
+  const SEG_IDS = ['segA','segB','segC','segD','segE','segF','segG'];
+  let units = 0;
+  let tickPct = 0;
+
+  
+  // 更新 PMOD 訊號列（code = 'a b c d e f g' 的 7-bit 字串）
+  function updatePmod(code){
+    const ids = ['pa','pb','pc','pd','pe','pf','pg'];
+    ids.forEach((id,i)=> $('#'+id).classList.toggle('on', code && code[i]==='1'));
+  }
+
+  function render(){
+    const code = CODE[units];
+    SEG_IDS.forEach((id,i)=> $('#'+id).classList.toggle('lit', code[i]==='1'));
+    $('#unitsNum').textContent = units;
+    $('#segCode').textContent = 'seg = ' + code;
+    $('#dispLbl').textContent = '目前顯示：' + units;
+    $('#bar').setAttribute('width', (240*tickPct).toFixed(1));
+    updatePmod(code);
+  }
+
+  function setChapter(n){
+    cur = Math.max(1,Math.min(CH,n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) $('#hlFpga').classList.add('on');
+    if(cur>=3) $('#hlDisp').classList.add('on');
+    $('#narr').innerHTML = narrative[cur];
+  }
+
+  const narrative = {
+    1: `<b>① 除頻</b>：12MHz 太快（每秒 1200 萬次），我們要的是「每秒一次」。
+        所以用 <code>tick</code> 計數器數到 11,999,999，數滿就歸零 → 產生 1Hz 脈衝。`,
+    2: `<b>② units +1</b>：每收到 1Hz 脈衝，<code>units</code> 就 +1；
+        數到 9 就歸 0（0→1→…→9→0）。`,
+    3: `<b>③ 解碼</b>：把 <code>units</code> 丟進解碼器，得到 7-bit 段碼，
+        再送到 a~g 腳。`,
+    4: `<b>④ 位數致能</b>：<code>dig1 = 0</code>（共陰：0 = 啟用右邊一位）、
+        <code>dig2 = 1</code>（關閉左邊）。`,
+    5: `<b>⑤ 完整</b>：12MHz → 除頻（1Hz）→ units 計數 → 解碼器 → 顯示器。
+        你會看到右邊一位每秒 +1：0→1→…→9→0。`
+  };
+
+  // 每 1.2 秒：tick 跑完 + units +1
+  setInterval(()=>{
+    // 讓 tick 條動畫到滿
+    let p = 0;
+    const stepTimer = setInterval(()=>{
+      p += 0.1; tickPct = Math.min(1,p); render();
+      if(p >= 1){
+        clearInterval(stepTimer);
+        tickPct = 0;
+        units = (units+1) % 10;
+        $('#tickLed').classList.add('on');
+        setTimeout(()=>$('#tickLed').classList.remove('on'), 140);
+        render();
+      }
+    }, 60);
+  }, 1200);
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+  render();
+})();
+</script>
+<a href="index.html" class="back-home">← 返回主頁</a>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step8 動畫 — 0~99 計數（多工）</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .plate{fill:#0d1526;stroke:#2c3a5c}
+  .seg{fill:#1b2740;stroke:#2c3a5c;stroke-width:1.5;transition:fill .1s,filter .1s}
+  .pwire{fill:#222e49;transition:fill .15s,filter .15s}
+  .pwire.on{fill:var(--accent);filter:drop-shadow(0 0 6px #ffd54a)}
+  .seg.lit{fill:var(--accent);stroke:#ffe89a;filter:drop-shadow(0 0 8px #ffd54a)}
+  .digit{opacity:.22;transition:opacity .08s}
+  .digit.on{opacity:1}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .big{font-size:24px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+  .led{fill:#1b2740;stroke:#2c3a5c;transition:fill .08s}
+  .led.on{fill:var(--green);stroke:#7dffb0;filter:drop-shadow(0 0 8px #38e07b)}
+
+  /* ==== 返回主頁按鈕 ==== */
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;
+    padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;
+    box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step8 動畫 — 0~99 計數（多工）</h1>
+  <div class="sub">
+    把 step6（計數）＋ step7（多工）合起來，就是兩位數計數器。<br>
+    路徑：<b>units/tens 進位 → 兩個解碼器 → 多工選擇 → 兩位數顯示</b>
+  </div>
+
+  <div class="chapters" id="chapters">
+    <button data-ch="1" class="on">① 十進位進位</button>
+    <button data-ch="2">② 兩個解碼器</button>
+    <button data-ch="3">③ 多工選擇</button>
+    <button data-ch="4">④ 完整</button>
+  </div>
+
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 530" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gChip" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b2a48"/><stop offset="1" stop-color="#121d33"/>
+        </linearGradient>
+      </defs>
+
+      <!-- 程式碼 -->
+      <g id="gCode">
+        <rect x="20" y="60" width="330" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">step8 程式碼</text>
+        <text x="40" y="116" class="mono" style="font-size:12px" fill="#9fd4ff">// 進位</text>
+        <text x="40" y="138" class="mono" style="font-size:12px" fill="#9fd4ff">if (units == 4'd9) begin</text>
+        <text x="52" y="160" class="mono" style="font-size:12px" fill="#9fd4ff">units &lt;= 0;</text>
+        <text x="52" y="182" class="mono" style="font-size:12px" fill="#9fd4ff">tens &lt;= (tens==9)?0:tens+1;</text>
+        <text x="40" y="204" class="mono" style="font-size:12px" fill="#9fd4ff">end else</text>
+        <text x="52" y="226" class="mono" style="font-size:12px" fill="#9fd4ff">units &lt;= units + 1;</text>
+
+        <line x1="40" y1="242" x2="320" y2="242" stroke="#2c3a5c"/>
+
+        <text x="40" y="266" class="mono" style="font-size:12px" fill="#9fd4ff">// 多工選擇</text>
+        <text x="40" y="288" class="mono" style="font-size:12px" fill="#9fd4ff">seg = cur_dig ? seg_tens</text>
+        <text x="64" y="310" class="mono" style="font-size:12px" fill="#9fd4ff">: seg_units;</text>
+        <text x="40" y="332" class="mono" style="font-size:12px" fill="#9fd4ff">dig1 = cur_dig;</text>
+        <text x="40" y="354" class="mono" style="font-size:12px" fill="#9fd4ff">dig2 = ~cur_dig;</text>
+        <text x="40" y="382" class="lbl" style="font-size:11px;fill:#ffd54a">→ 同一組段線，輪流顯示十位/個位</text>
+      </g>
+
+      <!-- FPGA -->
+      <g id="gFpga">
+        <rect x="380" y="60" width="250" height="340" rx="16" fill="url(#gChip)" class="chip"/>
+        <text x="505" y="88" text-anchor="middle" class="lbl-strong">FPGA</text>
+
+        <text x="400" y="120" class="lbl" style="font-size:11px">units（個位）</text>
+        <rect x="400" y="130" width="56" height="34" rx="8" class="plate"/>
+        <text id="uNum" x="428" y="153" class="big" style="font-size:20px">0</text>
+
+        <text x="530" y="120" class="lbl" style="font-size:11px">tens（十位）</text>
+        <rect x="530" y="130" width="56" height="34" rx="8" class="plate"/>
+        <text id="tNum" x="558" y="153" class="big" style="font-size:20px">0</text>
+
+        <text x="505" y="192" text-anchor="middle" class="lbl" style="font-size:11px">cur_dig（多工選擇）</text>
+        <rect x="470" y="200" width="70" height="30" rx="8" class="plate"/>
+        <text id="curDig" x="505" y="220" class="big" style="font-size:18px">0</text>
+
+        <text x="505" y="256" text-anchor="middle" class="lbl" style="font-size:11px">目前顯示</text>
+        <text id="nowTxt" x="505" y="278" text-anchor="middle" class="lbl" style="font-size:12px;fill:#ffd54a">個位</text>
+
+        <text x="505" y="320" text-anchor="middle" class="lbl" style="font-size:11px">→ 兩位數：33 → 34 → … → 99 → 00</text>
+        <text x="505" y="346" text-anchor="middle" class="lbl" style="font-size:11px;fill:#38e07b">每秒 +1（除頻 1Hz）</text>
+      </g>
+
+      <!-- 兩位數顯示器 -->
+      <g id="gDisp">
+        <rect x="700" y="60" width="380" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="890" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">兩位數顯示器</text>
+
+        <!-- 十位 -->
+        <g id="tensDigit" class="digit">
+          <rect id="tA" class="seg" x="748" y="130" width="44" height="7" rx="3"/>
+          <rect id="tB" class="seg" x="792" y="137" width="7" height="44" rx="3"/>
+          <rect id="tC" class="seg" x="792" y="181" width="7" height="44" rx="3"/>
+          <rect id="tD" class="seg" x="748" y="225" width="44" height="7" rx="3"/>
+          <rect id="tE" class="seg" x="741" y="181" width="7" height="44" rx="3"/>
+          <rect id="tF" class="seg" x="741" y="137" width="7" height="44" rx="3"/>
+          <rect id="tG" class="seg" x="748" y="177" width="44" height="7" rx="3"/>
+        </g>
+        <text x="770" y="256" text-anchor="middle" class="lbl" style="font-size:11px">十位</text>
+
+        <!-- 個位 -->
+        <g id="unitsDigit" class="digit">
+          <rect id="uA" class="seg" x="858" y="130" width="44" height="7" rx="3"/>
+          <rect id="uB" class="seg" x="902" y="137" width="7" height="44" rx="3"/>
+          <rect id="uC" class="seg" x="902" y="181" width="7" height="44" rx="3"/>
+          <rect id="uD" class="seg" x="858" y="225" width="44" height="7" rx="3"/>
+          <rect id="uE" class="seg" x="851" y="181" width="7" height="44" rx="3"/>
+          <rect id="uF" class="seg" x="851" y="137" width="7" height="44" rx="3"/>
+          <rect id="uG" class="seg" x="858" y="177" width="44" height="7" rx="3"/>
+        </g>
+        <text x="880" y="256" text-anchor="middle" class="lbl" style="font-size:11px">個位</text>
+
+        <rect id="digLbox" class="led" x="755" y="272" width="30" height="10" rx="4"/>
+        <text x="770" y="296" text-anchor="middle" class="lbl" style="font-size:10px">dig1</text>
+        <rect id="digRbox" class="led" x="865" y="272" width="30" height="10" rx="4"/>
+        <text x="880" y="296" text-anchor="middle" class="lbl" style="font-size:10px">dig2</text>
+
+        <text id="eyeTxt" x="890" y="330" text-anchor="middle" class="lbl" style="font-size:12px;fill:#38e07b">你看起來：兩位都顯示 00</text>
+      </g>
+
+      <rect id="hlCode" x="20" y="60" width="330" height="340" rx="14" class="hl-box"/>
+      <rect id="hlFpga" x="380" y="60" width="250" height="340" rx="16" class="hl-box"/>
+      <rect id="hlDisp" x="700" y="60" width="380" height="340" rx="14" class="hl-box"/>
+    
+      <!-- ==== PMOD 訊號列（有訊號的線會亮） ==== -->
+      <g id="gPmod">
+        <text x="550" y="478" text-anchor="middle" class="lbl" style="font-size:11px">PMOD 排線（有訊號的線會亮）</text>
+        <g id="pmodRow">
+          <rect id="pa" class="pwire" x="210" y="490" width="95" height="11" rx="3"/>
+          <text x="257" y="516" text-anchor="middle" class="lbl" style="font-size:9px">a</text>
+          <rect id="pb" class="pwire" x="315" y="490" width="95" height="11" rx="3"/>
+          <text x="362" y="516" text-anchor="middle" class="lbl" style="font-size:9px">b</text>
+          <rect id="pc" class="pwire" x="420" y="490" width="95" height="11" rx="3"/>
+          <text x="467" y="516" text-anchor="middle" class="lbl" style="font-size:9px">c</text>
+          <rect id="pd" class="pwire" x="525" y="490" width="95" height="11" rx="3"/>
+          <text x="572" y="516" text-anchor="middle" class="lbl" style="font-size:9px">d</text>
+          <rect id="pe" class="pwire" x="630" y="490" width="95" height="11" rx="3"/>
+          <text x="677" y="516" text-anchor="middle" class="lbl" style="font-size:9px">e</text>
+          <rect id="pf" class="pwire" x="735" y="490" width="95" height="11" rx="3"/>
+          <text x="782" y="516" text-anchor="middle" class="lbl" style="font-size:9px">f</text>
+          <rect id="pg" class="pwire" x="840" y="490" width="95" height="11" rx="3"/>
+          <text x="887" y="516" text-anchor="middle" class="lbl" style="font-size:9px">g</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。數字每秒 +1，多工每秒切 1000 次。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CH = 4; let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  const CODE = ['1111110','0110000','1101101','1111001','0110011',
+                '1011011','1011111','1110000','1111111','1111011'];
+  let units = 0, tens = 0;
+  let curDig = 0;   // 0 = 個位(dig1), 1 = 十位(dig2)
+
+  function setDigit(prefix, d){
+    const code = CODE[d];
+    const ids = ['A','B','C','D','E','F','G'];
+    ids.forEach((suf,i)=> $('#'+prefix+suf).classList.toggle('lit', code[i]==='1'));
+  }
+
+  
+  // 更新 PMOD 訊號列（code = 'a b c d e f g' 的 7-bit 字串）
+  function updatePmod(code){
+    const ids = ['pa','pb','pc','pd','pe','pf','pg'];
+    ids.forEach((id,i)=> $('#'+id).classList.toggle('on', code && code[i]==='1'));
+  }
+
+  function render(){
+    $('#uNum').textContent = units;
+    $('#tNum').textContent = tens;
+    $('#curDig').textContent = curDig;
+    $('#nowTxt').textContent = (curDig===0) ? '個位' : '十位';
+
+    // 多工：只亮一位
+    const showUnits = (curDig === 0);
+    $('#unitsDigit').classList.toggle('on', showUnits);
+    $('#tensDigit').classList.toggle('on', !showUnits);
+    $('#digLbox').classList.toggle('on', showUnits);
+    $('#digRbox').classList.toggle('on', !showUnits);
+
+    $('#eyeTxt').textContent = '你看起來：兩位都顯示 ' + tens + units;
+    updatePmod(CODE[curDig ? tens : units]);
+  }
+
+  function setChapter(n){
+    cur = Math.max(1,Math.min(CH,n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) $('#hlFpga').classList.add('on');
+    if(cur>=3) $('#hlDisp').classList.add('on');
+    if(cur>=4){ $('#hlCode').classList.add('on'); $('#hlFpga').classList.add('on'); $('#hlDisp').classList.add('on'); }
+    $('#narr').innerHTML = narrative[cur];
+  }
+
+  const narrative = {
+    1: `<b>① 十進位進位</b>：個位 <code>units</code> 從 9 歸 0 時，十位 <code>tens</code> +1；
+        十位到 9 再進位就歸 0（99 → 00）。這就是我們熟悉的十進位。`,
+    2: `<b>② 兩個解碼器</b>：個位、十位各一個解碼器，各自算出 7-bit 段碼
+        （<code>seg_units</code>、<code>seg_tens</code>）。`,
+    3: `<b>③ 多工選擇</b>：<code>cur_dig</code> 每秒切 1000 次。當它 = 0 時段線接「個位」、
+        = 1 時接「十位」，並同時切換 <code>dig1/dig2</code>。`,
+    4: `<b>④ 完整</b>：計數（十進位）＋ 兩個解碼器 ＋ 多工 = 兩位數計數器。
+        你會看到 00 → 01 → … → 99 → 00，每秒 +1。`
+  };
+
+  // 每秒 +1
+  setInterval(()=>{
+    if(units === 9){ units = 0; tens = (tens === 9) ? 0 : tens + 1; }
+    else units++;
+    render();
+  }, 1200);
+
+  // 多工（快速切換）
+  setInterval(()=>{ curDig = curDig ? 0 : 1; render(); }, 90);
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+  setDigit('t', tens);
+  setDigit('u', units);
+  render();
+})();
+</script>
+<a href="index.html" class="back-home">← 返回主頁</a>
+</body>
+</html>

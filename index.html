@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WiFiBoy iCE40Pro · 7 段顯示器學習動畫</title>
+<style>
+  :root{
+    --bg:#0b1020; --line:#263352; --text:#dce6ff; --dim:#8fa0c4;
+    --accent:#ffd54a; --green:#38e07b; --cyan:#3ad0e6; --violet:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;min-height:100vh;
+    background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:56px 20px 56px}
+
+  /* ---------- 品牌抬頭 ---------- */
+  header{text-align:center;margin-bottom:24px}
+  .brand{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:7px 16px;border-radius:999px;
+    border:1px solid #2c3a5c;background:#0f1729;
+    font-size:13px;letter-spacing:.6px;margin-bottom:20px;
+  }
+  .brand-dot{width:9px;height:9px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 10px var(--green)}
+  .brand b{color:var(--text);font-weight:800}
+  .brand .model{color:var(--cyan);font-weight:700}
+  h1{font-size:32px;margin:0 0 12px;font-weight:800;letter-spacing:.5px}
+  h1 .accent{color:var(--accent)}
+  .sub{color:var(--dim);font-size:15px;line-height:1.9}
+  .sub b{color:var(--text)}
+
+  /* ---------- 硬體區 ---------- */
+  .hardware{margin:36px 0 44px}
+  .sec-title{
+    display:flex;align-items:center;gap:10px;
+    font-size:14px;color:var(--dim);margin:0 0 14px;
+    font-weight:600;letter-spacing:.4px;
+  }
+  .sec-title::before,.sec-title::after{
+    content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,#263352,transparent)
+  }
+  .board{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    background:linear-gradient(180deg,#0f1729,#0b1220);
+    border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:14px;
+  }
+  .board-icon{flex:0 0 auto;width:46px;height:46px;color:var(--cyan)}
+  .board-name{font-size:15px;font-weight:700}
+  .board-name span{color:var(--accent)}
+  .board-spec{font-size:12.5px;color:var(--dim);line-height:1.7;margin-top:3px}
+
+  .pmods{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  @media(max-width:900px){.pmods{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.pmods{grid-template-columns:repeat(2,1fr)}}
+  .pmod{
+    background:#0d1526;border:1px solid var(--line);border-radius:12px;
+    padding:14px 12px;text-align:center;transition:.2s;
+  }
+  .pmod:hover{border-color:#4a6396;transform:translateY(-2px)}
+  .pmod svg{width:38px;height:38px;display:block;margin:0 auto 8px}
+  .pmod-name{font-size:12.5px;font-weight:700}
+  .pmod-desc{font-size:10.5px;color:var(--dim);margin-top:4px;line-height:1.5}
+
+  /* ---------- 步驟卡片 ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}}
+
+  a.card{
+    display:flex;flex-direction:column;overflow:hidden;
+    background:linear-gradient(180deg,#0f1729,#0b1220);
+    border:1px solid var(--line);border-radius:16px;text-decoration:none;color:var(--text);
+    transition:transform .18s,border-color .18s,box-shadow .18s;
+  }
+  a.card:hover{border-color:#4a6396;transform:translateY(-3px);box-shadow:0 18px 44px #05080f}
+  a.card .thumb{height:120px;background:#0d1526;border-bottom:1px solid var(--line);
+    overflow:hidden;flex:0 0 auto}
+  a.card .thumb img{width:100%;height:100%;object-fit:cover;object-position:center 30%;
+    display:block;filter:saturate(.85) brightness(.92)}
+  a.card .body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+  a.card .num{font-family:"SF Mono",Menlo,monospace;font-size:13px;font-weight:700;
+    color:var(--accent);opacity:.85;letter-spacing:1px}
+  a.card .title{font-size:16px;font-weight:700;margin:6px 0 8px}
+  a.card .desc{font-size:12.5px;color:var(--dim);line-height:1.65;flex:1}
+  a.card .go{margin-top:14px;font-size:12px;color:var(--cyan);font-weight:600}
+
+  footer{text-align:center;margin-top:48px;color:var(--dim);font-size:12px;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <b>WiFiBoy</b><span class="model">OK-iCE40Pro</span>
+    </div>
+    <h1>7 段顯示器 <span class="accent">學習動畫</span></h1>
+    <div class="sub">
+      從「點亮一段」到「00~99」，9 個步驟，每步都有互動動畫。<br>
+      點選任一張卡片開始，每頁右上角都有「返回主頁」。
+    </div>
+  </header>
+
+  <!-- ============ 硬體與 PMOD ============ -->
+  <section class="hardware">
+    <h2 class="sec-title">硬體與 PMOD 外設</h2>
+
+    <div class="board">
+      <svg class="board-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="6" y="10" width="36" height="28" rx="4"/>
+        <rect x="13" y="17" width="22" height="14" rx="2" stroke-width="1.6" opacity=".7"/>
+        <circle cx="12" cy="34" r="1.6" fill="currentColor" stroke="none"/>
+        <circle cx="18" cy="34" r="1.6" fill="currentColor" stroke="none"/>
+        <path d="M20 44 h8 M24 38 v6" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="board-name">WiFiBoy <span>OK-iCE40Pro</span></div>
+        <div class="board-spec">
+          Lattice iCE40UP5K-SG48 · 5280 LUT · 30 BRAM · 1 PLL · 12MHz 時鐘<br>
+          PMOD 介面 12 腳：9 支訊號（p1~p9）+ 3.3V / GND / 5V
+        </div>
+      </div>
+    </div>
+
+    <div class="pmods">
+      <!-- 1. 7 段顯示器 -->
+      <div class="pmod">
+        <svg viewBox="0 0 48 48" fill="#ffd54a">
+          <rect x="10" y="5" width="28" height="4" rx="2"/>
+          <rect x="36" y="8" width="4" height="16" rx="2"/>
+          <rect x="36" y="25" width="4" height="16" rx="2"/>
+          <rect x="10" y="40" width="28" height="4" rx="2"/>
+          <rect x="8" y="25" width="4" height="16" rx="2"/>
+          <rect x="8" y="8" width="4" height="16" rx="2"/>
+          <rect x="10" y="22" width="28" height="4" rx="2"/>
+        </svg>
+        <div class="pmod-name">7 段顯示器</div>
+        <div class="pmod-desc">共陰直驅 · A~G + 2 位數</div>
+      </div>
+
+      <!-- 2. RGB6 LED -->
+      <div class="pmod">
+        <svg viewBox="0 0 48 48">
+          <circle cx="14" cy="24" r="8" fill="#ff5a5a" opacity=".95"/>
+          <circle cx="24" cy="24" r="8" fill="#38e07b" opacity=".95"/>
+          <circle cx="34" cy="24" r="8" fill="#3a8bff" opacity=".95"/>
+          <text x="24" y="44" text-anchor="middle" font-size="8" fill="#8fa0c4">3×6</text>
+        </svg>
+        <div class="pmod-name">RGB6 LED</div>
+        <div class="pmod-desc">3×6 矩陣（R/G/B + D0~D5）</div>
+      </div>
+
+      <!-- 3. VGA -->
+      <div class="pmod">
+        <svg viewBox="0 0 48 48" fill="none" stroke="#3ad0e6" stroke-width="2.6">
+          <rect x="5" y="7" width="38" height="26" rx="3"/>
+          <path d="M18 33 v5 M30 33 v5 M14 41 h20" stroke-linecap="round"/>
+          <circle cx="24" cy="20" r="4" fill="#3ad0e6" stroke="none" opacity=".85"/>
+        </svg>
+        <div class="pmod-name">VGA</div>
+        <div class="pmod-desc">6-bit 色（R/G/B 各 2bit）+ HS/VS</div>
+      </div>
+
+      <!-- 4. HDMI -->
+      <div class="pmod">
+        <svg viewBox="0 0 48 48" fill="none" stroke="#a78bfa" stroke-width="2.4">
+          <path d="M9 14 h30 l-3 8 h-24 z" />
+          <path d="M12 22 v10 h24 v-10" />
+          <path d="M18 34 v6 M24 34 v6 M30 34 v6" stroke-linecap="round"/>
+          <path d="M14 38 h20" stroke-linecap="round"/>
+        </svg>
+        <div class="pmod-name">HDMI</div>
+        <div class="pmod-desc">SIL164CT64 DVI 發射器（2:2:1）</div>
+      </div>
+
+      <!-- 5. WS2812B -->
+      <div class="pmod">
+        <svg viewBox="0 0 48 48">
+          <rect x="3" y="20" width="42" height="8" rx="4" fill="#263352"/>
+          <circle cx="12" cy="24" r="3.4" fill="#ffd54a"/>
+          <circle cx="24" cy="24" r="3.4" fill="#38e07b"/>
+          <circle cx="36" cy="24" r="3.4" fill="#3ad0e6"/>
+          <path d="M6 34 h36" stroke="#263352" stroke-width="1.4" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="pmod-name">WS2812B</div>
+        <div class="pmod-desc">可定址 LED 燈條（DIN）</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 個步驟 ============ -->
+  <h2 class="sec-title">9 個學習步驟</h2>
+  <div class="grid">
+    <a class="card" href="step1.html">
+      <div class="thumb"><img src="img/step1.png" alt="step1" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 01</div>
+        <div class="title">點亮 A 段</div>
+        <div class="desc">最短的顯示程式：Verilog → FPGA 腳位 → PMOD → 7 段顯示器</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step2.html">
+      <div class="thumb"><img src="img/step2.png" alt="step2" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 02</div>
+        <div class="title">輪流點亮 A~G</div>
+        <div class="desc">時鐘除頻 → step 計數 → case 選段，每秒換一段</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step3.html">
+      <div class="thumb"><img src="img/step3.png" alt="step3" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 03</div>
+        <div class="title">逐腳掃描（找腳位）</div>
+        <div class="desc">9 個腳輪流拉高 → 觀察哪段亮 → 得出腳位對照表</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step4.html">
+      <div class="thumb"><img src="img/step4.png" alt="step4" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 04</div>
+        <div class="title">解碼器（數字 → 段碼）</div>
+        <div class="desc">case 查表：4-bit 數字 → 7-bit 段碼 → 顯示器</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step5.html">
+      <div class="thumb"><img src="img/step5.png" alt="step5" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 05</div>
+        <div class="title">解碼器單元測試</div>
+        <div class="desc">testbench 餵 input → 比對 output → ALL PASS</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step6.html">
+      <div class="thumb"><img src="img/step6.png" alt="step6" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 06</div>
+        <div class="title">0~9 計數</div>
+        <div class="desc">除頻 1Hz → units 計數 → 每秒 +1</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step7.html">
+      <div class="thumb"><img src="img/step7.png" alt="step7" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 07</div>
+        <div class="title">多工掃描</div>
+        <div class="desc">段線共用 + 位數分時 → 兩位數看起來同時亮</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step8.html">
+      <div class="thumb"><img src="img/step8.png" alt="step8" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 08</div>
+        <div class="title">0~99 計數</div>
+        <div class="desc">十進位進位 + 兩個解碼器 + 多工 → 00~99</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+
+    <a class="card" href="step9.html">
+      <div class="thumb"><img src="img/step9.png" alt="step9" loading="lazy"></div>
+      <div class="body">
+        <div class="num">STEP 09</div>
+        <div class="title">共陰 / 共陽切換</div>
+        <div class="desc">parameter 切換 → 段碼/位數反相，兩種硬體都能用</div>
+        <div class="go">開始 →</div>
+      </div>
+    </a>
+  </div>
+
+  <footer>
+    純靜態網頁，用瀏覽器開啟即可，免安裝。<br>
+    WiFiBoy OK-iCE40Pro · 7 段顯示器學習動畫
+  </footer>
+</div>
+</body>
+</html>

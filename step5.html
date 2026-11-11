@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step5 動畫 — 解碼器單元測試</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6;--red:#ff6b6b}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .plate{fill:#0d1526;stroke:#2c3a5c}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .row{font-family:"SF Mono",Menlo,monospace;font-size:11px;fill:#9fb2d8}
+  .row.ok{fill:var(--green)}
+  .big{font-family:"SF Mono",Menlo,monospace;font-size:16px;fill:var(--accent);font-weight:700}
+
+  /* ==== 返回主頁按鈕 ==== */
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;
+    padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;
+    box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step5 動畫 — 解碼器單元測試</h1>
+  <div class="sub">
+    不要每次都在板子上瞎猜，先用模擬確認邏輯。<br>
+    路徑：<b>testbench 餵 input → 觀察 output → 跟預期比對 → ALL PASS</b>
+  </div>
+
+  <div class="chapters" id="chapters">
+    <button data-ch="1" class="on">① 為什麼要模擬</button>
+    <button data-ch="2">② testbench 結構</button>
+    <button data-ch="3">③ 餵 0~15</button>
+    <button data-ch="4">④ 比對結果</button>
+    <button data-ch="5">⑤ ALL PASS</button>
+    <button data-ch="6">⑥ 學到什麼</button>
+  </div>
+
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      <!-- 程式碼 -->
+      <g id="gCode">
+        <rect x="20" y="60" width="330" height="380" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">testbench（測試台）</text>
+        <text x="40" y="116" class="mono" style="font-size:11px" fill="#9fd4ff">module tb_decoder;</text>
+        <text x="52" y="136" class="mono" style="font-size:11px" fill="#9fd4ff">reg  [3:0] digit;   // 送進去</text>
+        <text x="52" y="156" class="mono" style="font-size:11px" fill="#9fd4ff">wire [6:0] seg;     // 看出來</text>
+        <text x="52" y="176" class="mono" style="font-size:11px" fill="#9fd4ff">seven_seg_decoder dut(</text>
+        <text x="64" y="194" class="mono" style="font-size:11px" fill="#9fd4ff">.digit(digit), .seg(seg));</text>
+        <text x="52" y="222" class="mono" style="font-size:11px" fill="#9fd4ff">initial begin</text>
+        <text x="64" y="242" class="mono" style="font-size:11px" fill="#9fd4ff">for (i=0; i&lt;16; i=i+1) begin</text>
+        <text x="76" y="262" class="mono" style="font-size:11px" fill="#9fd4ff">digit = i[3:0];</text>
+        <text x="76" y="282" class="mono" style="font-size:11px" fill="#9fd4ff">#1;  // 等穩定</text>
+        <text x="76" y="302" class="mono" style="font-size:11px" fill="#9fd4ff">if (seg !== expected)</text>
+        <text x="88" y="322" class="mono" style="font-size:11px" fill="#ff6b6b">fail = 1;</text>
+        <text x="76" y="342" class="mono" style="font-size:11px" fill="#9fd4ff">else $display("OK %0d", i);</text>
+        <text x="64" y="362" class="mono" style="font-size:11px" fill="#9fd4ff">end</text>
+        <text x="64" y="382" class="mono" style="font-size:11px" fill="#9fd4ff">$finish;</text>
+        <text x="52" y="402" class="mono" style="font-size:11px" fill="#9fd4ff">end</text>
+        <text x="40" y="422" class="mono" style="font-size:11px" fill="#9fd4ff">endmodule</text>
+      </g>
+
+      <!-- 測試進行中 -->
+      <g id="gRunner">
+        <rect x="380" y="60" width="300" height="380" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="400" y="88" class="lbl-strong">模擬進行中</text>
+
+        <text x="400" y="122" class="lbl" style="font-size:12px">目前測試 i =</text>
+        <text id="iVal" x="540" y="124" class="big">0</text>
+
+        <text x="400" y="160" class="lbl" style="font-size:12px">餵進去 digit</text>
+        <rect x="520" y="142" width="130" height="26" rx="6" class="plate"/>
+        <text id="digitVal" x="585" y="161" class="lbl" style="font-size:12px;fill:#ffd54a;text-anchor:middle">4'd0</text>
+
+        <text x="400" y="200" class="lbl" style="font-size:12px">預期 expected</text>
+        <rect x="520" y="182" width="130" height="26" rx="6" class="plate"/>
+        <text id="expVal" x="585" y="201" class="lbl" style="font-size:12px;text-anchor:middle">1111110</text>
+
+        <text x="400" y="240" class="lbl" style="font-size:12px">實際 seg</text>
+        <rect x="520" y="222" width="130" height="26" rx="6" class="plate"/>
+        <text id="actVal" x="585" y="241" class="lbl" style="font-size:12px;text-anchor:middle">1111110</text>
+
+        <text x="400" y="286" class="lbl" style="font-size:12px">比對結果</text>
+        <rect id="resBox" x="520" y="266" width="130" height="30" rx="8" fill="#0d1526" stroke="#3a4a72"/>
+        <text id="resTxt" x="585" y="287" class="lbl" style="font-size:13px;text-anchor:middle;fill:#38e07b">OK ✓</text>
+
+        <text x="400" y="330" class="lbl" style="font-size:11px">模擬時間（#1 = 1ns）</text>
+        <text id="timeVal" x="400" y="352" class="mono" style="font-size:12px" fill="#9fd4ff">t = 0 ns</text>
+      </g>
+
+      <!-- 結果清單 -->
+      <g id="gList">
+        <rect x="720" y="60" width="280" height="380" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="740" y="88" class="lbl-strong">測試結果</text>
+        <g id="rows">
+          <!-- 16 行由 JS 產生 -->
+        </g>
+        <text id="summary" x="860" y="420" text-anchor="middle" class="lbl" style="font-size:13px;fill:#38e07b">（進行中…）</text>
+      </g>
+
+      <rect id="hlCode" x="20" y="60" width="330" height="380" rx="14" class="hl-box"/>
+      <rect id="hlRunner" x="380" y="60" width="300" height="380" rx="14" class="hl-box"/>
+      <rect id="hlList" x="720" y="60" width="280" height="380" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。測試每 0.6 秒跑一筆。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CH = 6; let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  const CODE = ['1111110','0110000','1101101','1111001','0110011',
+                '1011011','1011111','1110000','1111111','1111011'];
+  function expectedOf(i){ return (i<=9) ? CODE[i] : '0000000'; }
+
+  let i = 0;
+  const N = 16;
+
+  // 產生 16 行結果列
+  const rowsG = $('#rows');
+  for(let k=0;k<N;k++){
+    const y = 112 + k*18;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','text');
+    g.setAttribute('x','740'); g.setAttribute('y',y);
+    g.setAttribute('class','row'); g.setAttribute('id','row'+k);
+    g.textContent = 'i=' + String(k).padStart(2,'0') + '  （等待）';
+    rowsG.appendChild(g);
+  }
+
+  function render(){
+    const exp = expectedOf(i);
+    const act = exp; // 模擬「正確的解碼器」→ 實際等於預期
+    $('#iVal').textContent = i;
+    $('#digitVal').textContent = "4'd" + i;
+    $('#expVal').textContent = exp;
+    $('#actVal').textContent = act;
+    const ok = (act === exp);
+    $('#resTxt').textContent = ok ? 'OK ✓' : 'FAIL ✗';
+    $('#resTxt').setAttribute('style','font-size:13px;text-anchor:middle;fill:' + (ok?'#38e07b':'#ff6b6b'));
+    $('#timeVal').textContent = 't = ' + (i*2) + ' ns';
+
+    // 更新結果列
+    for(let k=0;k<N;k++){
+      const el = $('#row'+k);
+      if(el) el.setAttribute('class', k<=i ? 'row ok' : 'row');
+    }
+    if(i < N){
+      const el = $('#row'+i);
+      if(el) el.textContent = 'i=' + String(i).padStart(2,'0') + '  OK ✓';
+    }
+    $('#summary').textContent = (i >= N-1) ? '==> ALL PASS ==' : '（進行中 ' + (i+1) + '/' + N + '）';
+    $('#summary').setAttribute('style','font-size:13px;text-anchor:middle;fill:' + (i>=N-1?'#38e07b':'#8fa0c4'));
+  }
+
+  function setChapter(n){
+    cur = Math.max(1,Math.min(CH,n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) $('#hlRunner').classList.add('on');
+    if(cur>=4) $('#hlList').classList.add('on');
+    $('#narr').innerHTML = narrative[cur];
+  }
+
+  const narrative = {
+    1: `<b>① 為什麼要模擬</b>：每次改程式都燒到板子、再看顯示器，太慢又難抓錯。
+        先用 <b>模擬器</b>（iverilog）跑邏輯，錯了馬上知道，而且不用碰硬體。`,
+    2: `<b>② testbench 結構</b>：testbench 是「測試台」，它<b>自己產生 input</b>（reg）、
+        <b>觀察 output</b>（wire），把待測物接進來（<code>dut</code>）。`,
+    3: `<b>③ 餵 0~15</b>：用一個 <code>for</code> 迴圈，把 0 到 15 一個一個餵給解碼器
+        （0~9 有段碼，10~15 是預設 0000000）。每次等 <code>#1</code> 讓輸出穩定。`,
+    4: `<b>④ 比對結果</b>：把「實際 seg」和「預期 expected」用 <code>!==</code> 比對
+        （<code>!==</code> 連 x、z 都比得出來，一般 <code>!=</code> 遇到 x 會亂比）。`,
+    5: `<b>⑤ ALL PASS</b>：16 筆全對，畫面印出 <code>==> ALL PASS ==</code>。
+        代表解碼器邏輯正確，可以放心上板。`,
+    6: `<b>⑥ 學到什麼</b>：<b>先模擬、再上板</b>。這個習慣會幫你省下大量除錯時間，
+        後面 step6~step9 的計數、多工、極性，都可以用同樣方式先驗證。`
+  };
+
+  setInterval(()=>{ i = (i+1) % N; render(); }, 600);
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+  render();
+})();
+</script>
+<a href="index.html" class="back-home">← 返回主頁</a>
+</body>
+</html>

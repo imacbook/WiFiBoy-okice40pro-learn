@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step1 訊號流動動畫 — Verilog → FPGA → PMOD → 7 段顯示器</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#0f1729; --line:#263352;
+    --text:#dce6ff; --dim:#8fa0c4; --accent:#ffd54a;
+    --green:#38e07b; --cyan:#3ad0e6; --red:#ff6b6b; --violet:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650;letter-spacing:.3px}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{
+    border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;
+    transition:.2s;font-family:inherit
+  }
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);
+    border-color:#4a6396;box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{
+    margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75
+  }
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{flex:0 0 auto;background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit;transition:.2s}
+  .nav button:hover{background:#1e2c4d;border-color:#3a4a72}
+  .nav .spacer{flex:1}
+
+  /* ---- SVG 元素預設 ---- */
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .code{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:15px}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .pin{fill:#0d1526;stroke:#5b74a8;stroke-width:1.5}
+  .wire{fill:none;stroke:#31405f;stroke-width:2.5}
+  .wire-hi{fill:none;stroke:var(--accent);stroke-width:3.5;filter:drop-shadow(0 0 6px var(--accent))}
+  .seg{fill:#1b2740;stroke:#2c3a5c;stroke-width:1.5;transition:fill .25s,stroke .25s,filter .25s}
+  .seg.lit{fill:var(--accent);stroke:#ffe89a;filter:drop-shadow(0 0 10px #ffd54a)}
+  .dig{fill:#0d1526;stroke:#5b74a8;stroke-width:1.5;transition:all .25s}
+  .dig.en{fill:#123a2a;stroke:var(--green);filter:drop-shadow(0 0 8px #38e07b88)}
+  .dot-base{opacity:.0;transition:opacity .3s}
+  .dot-base.on{opacity:1}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .fade{opacity:.25;transition:opacity .35s}
+  .on .fade{opacity:1}
+  .badge{font-size:11px;fill:#0b1020;font-weight:700}
+
+  /* ==== 返回主頁按鈕 ==== */
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;
+    display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;
+    padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;
+    box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step1 訊號流動動畫</h1>
+  <div class="sub">
+    看一行 Verilog 程式，怎麼變成 7 段顯示器上「亮起來的那一段」。<br>
+    路徑：<b>Verilog 程式 → FPGA 晶片腳位 → PMOD 排線 → 7 段顯示器</b>
+  </div>
+
+  <div class="chapters" id="chapters">
+    <button data-ch="1" class="on">① 程式碼</button>
+    <button data-ch="2">② 對應腳位</button>
+    <button data-ch="3">③ 走過 PMOD</button>
+    <button data-ch="4">④ 到達顯示器</button>
+    <button data-ch="5">⑤ 位數致能</button>
+    <button data-ch="6">⑥ 完整結論</button>
+  </div>
+
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 460" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gChip" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1b2a48"/><stop offset="1" stop-color="#121d33"/>
+        </linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <path id="sigPath" d="M 555 238 L 620 238 L 760 238 L 815 200 L 855 135" fill="none"/>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#5b74a8"/>
+        </marker>
+      </defs>
+
+      <!-- ===== 背景格線 ===== -->
+      <g opacity=".18">
+        <path d="M0 80 H1100 M0 160 H1100 M0 240 H1100 M0 320 H1100 M0 400 H1100 M0 480 H1100"
+              stroke="#263352" stroke-width="1"/>
+      </g>
+
+      <!-- ===== 1) 程式碼面板 ===== -->
+      <g id="gCode">
+        <rect x="20" y="120" width="260" height="190" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="150" class="lbl-strong">Verilog 程式</text>
+        <text x="40" y="182" class="lbl">// step1：點亮 A 段</text>
+        <text x="40" y="212" class="code" fill="#9fd4ff">assign a <tspan fill="#8fa0c4">=</tspan> <tspan fill="#ffd54a">1'b1</tspan>;</text>
+        <text x="40" y="244" class="lbl">// a 這條線永遠輸出 1（高電位）</text>
+        <rect id="codeHi" x="32" y="196" width="236" height="30" rx="6" fill="#ffd54a" opacity="0.10"/>
+      </g>
+
+      <!-- ===== 2) FPGA 晶片 ===== -->
+      <g id="gFpga">
+        <rect x="330" y="120" width="170" height="270" rx="16" fill="url(#gChip)" class="chip"/>
+        <text x="415" y="160" text-anchor="middle" class="lbl-strong">FPGA</text>
+        <text x="415" y="182" text-anchor="middle" class="lbl" style="font-size:11px">iCE40UP5K</text>
+        <text x="415" y="210" text-anchor="middle" class="lbl" style="font-size:11px">WiFiBoy 板</text>
+
+        <!-- 內部：assign 的邏輯 -->
+        <rect x="356" y="300" width="118" height="44" rx="8" fill="#0d1526" stroke="#2c3a5c"/>
+        <text x="415" y="319" text-anchor="middle" class="lbl" style="font-size:11px">a = 1</text>
+        <text x="415" y="335" text-anchor="middle" class="lbl" style="font-size:10px">（固定輸出）</text>
+
+        <!-- 腳位 42 -->
+        <rect x="495" y="225" width="60" height="26" rx="5" class="pin"/>
+        <text x="525" y="243" text-anchor="middle" class="lbl" style="font-size:11px;fill:#ffd54a">pin 42</text>
+        <text x="495" y="218" class="lbl" style="font-size:10px">a</text>
+        <circle id="pinDot" cx="555" cy="238" r="5" fill="#ffd54a"/>
+      </g>
+
+      <!-- ===== 3) PMOD 排線 ===== -->
+      <g id="gPmod">
+        <rect x="600" y="180" width="160" height="150" rx="12" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="680" y="205" text-anchor="middle" class="lbl-strong" style="font-size:13px">PMOD 排線</text>
+        <!-- 9 條線（p1..p9），p1 用亮色 -->
+        <g id="pmodWires">
+          <!-- p1（接到 pin42） -->
+          <rect x="620" y="222" width="120" height="8" rx="4" fill="#31405f" id="w1"/>
+          <!-- 其他 8 條 -->
+          <rect x="620" y="238" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="250" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="262" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="274" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="286" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="298" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="310" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+          <rect x="620" y="322" width="120" height="5" rx="2.5" fill="#222e49" opacity=".7"/>
+        </g>
+        <text x="680" y="352" text-anchor="middle" class="lbl" style="font-size:10px;fill:#ffd54a">p1 = FPGA 42</text>
+      </g>
+
+      <!-- ===== 4) 7 段顯示器 ===== -->
+      <g id="gDisp">
+        <rect x="830" y="80" width="130" height="300" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="895" y="108" text-anchor="middle" class="lbl-strong" style="font-size:13px">7 段顯示器</text>
+
+        <!-- 七段（a~g） -->
+        <g id="segs">
+          <rect id="segA" class="seg" x="860" y="130" width="70" height="10" rx="3"/>
+          <rect id="segB" class="seg" x="930" y="140" width="10" height="70" rx="3"/>
+          <rect id="segC" class="seg" x="930" y="220" width="10" height="70" rx="3"/>
+          <rect id="segD" class="seg" x="860" y="290" width="70" height="10" rx="3"/>
+          <rect id="segE" class="seg" x="850" y="220" width="10" height="70" rx="3"/>
+          <rect id="segF" class="seg" x="850" y="140" width="10" height="70" rx="3"/>
+          <rect id="segG" class="seg" x="860" y="210" width="70" height="10" rx="3"/>
+        </g>
+        <text x="895" y="325" text-anchor="middle" class="lbl" style="font-size:11px">a = 上橫線</text>
+
+        <!-- 位數（common）腳 -->
+        <g id="gDig">
+          <rect id="digBox1" class="dig" x="850" y="338" width="30" height="12" rx="4"/>
+          <text id="digLbl1" x="865" y="366" text-anchor="middle" class="lbl" style="font-size:10px">dig1</text>
+          <rect id="digBox2" class="dig" x="890" y="338" width="30" height="12" rx="4"/>
+          <text id="digLbl2" x="905" y="366" text-anchor="middle" class="lbl" style="font-size:10px">dig2</text>
+        </g>
+      </g>
+
+      <!-- ===== 訊號路徑（虛線 + 箭頭）===== -->
+      <g id="gPath" class="fade">
+        <use href="#sigPath" class="wire"/>
+        <use href="#sigPath" class="wire-hi" id="sigHi" opacity="0"/>
+      </g>
+
+      <!-- ===== 訊號光點 ===== -->
+      <g id="gDot" class="dot-base">
+        <circle r="9" fill="#ffd54a" filter="url(#glow)" opacity=".9">
+          <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#sigPath"/>
+          </animateMotion>
+        </circle>
+      </g>
+
+      <!-- ===== 高亮框 ===== -->
+      <rect id="hlCode"  x="20"  y="120" width="260" height="190" rx="14" class="hl-box"/>
+      <rect id="hlPin"   x="488" y="216" width="74"  height="44"  rx="8"  class="hl-box"/>
+      <rect id="hlPmod"  x="600" y="180" width="160" height="150" rx="12" class="hl-box"/>
+      <rect id="hlDisp"  x="830" y="80"  width="130" height="300" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+
+  <div class="narration" id="narr">
+    <b>① 程式碼</b>：這一行 <code>assign a = 1'b1;</code> 的意思是「<b>a 這條線永遠輸出 1</b>」。
+    但「a」只是程式裡的名字，它到底接在板子的哪個腳？進到第 ② 章。
+  </div>
+  <div class="hint">用上方按鈕切換章節（或按 ← → 鍵）。動畫會一直循環播放。</div>
+
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const CH = 6;
+  let cur = 1;
+
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>document.querySelectorAll(s);
+
+  const narrative = {
+    1: `<b>① 程式碼</b>：這一行 <code>assign a = 1'b1;</code> 的意思是「<b>a 這條線永遠輸出 1</b>」。
+        但「a」只是程式裡的名字，它到底接在板子的哪個腳？進到第 ② 章。`,
+    2: `<b>② 對應腳位</b>：PCF（腳位設定檔）把 <code>a</code> 對應到 FPGA 的 <b>pin 42</b>。
+        所以「a = 1」就等於「<b>pin 42 輸出 1（高電位）</b>」。`,
+    3: `<b>③ 走過 PMOD</b>：pin 42 接在 PMOD 排線的 <b>p1</b> 上（黃色那條），
+        訊號就從 FPGA 沿著這條線送出去。其他 8 條線這一步沒用到。`,
+    4: `<b>④ 到達顯示器</b>：p1 接到 7 段顯示器的 <b>a 段</b>（上橫線）。
+        共陰顯示器：段收到 <b>1 → 亮</b>。所以 a 段亮起來了。`,
+    5: `<b>⑤ 但還要「位數致能」</b>（很多人卡在這）：光給段不夠，顯示器的
+        <b>dig1 / dig2</b> 也要致能（共陰 = 給 <b>0</b>），顯示器才會通電。
+        所以程式裡還有 <code>assign dig1 = 1'b0; assign dig2 = 1'b0;</code>。`,
+    6: `<b>⑥ 完整結論</b>：<code>a=1</code>（段亮）＋ <code>dig1=dig2=0</code>（位數致能）
+        <b>兩個條件同時成立</b>，你才會看到 A 段亮。少一個 → 整顆不亮。`
+  };
+
+  function clearHL(){
+    $$('.hl-box').forEach(el=>el.classList.remove('on'));
+    $('#gDot').classList.remove('on');
+    $('#sigHi').setAttribute('opacity','0');
+    $$('#segs .seg').forEach(el=>el.classList.remove('lit'));
+    $('#digBox1').classList.remove('en');
+    $('#digBox2').classList.remove('en');
+    $('#gPath').classList.remove('fade');
+    $('#codeHi').setAttribute('opacity','0.10');
+  }
+
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    clearHL();
+
+    // 章節按鈕
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch === cur));
+
+    // 第 1 章：高亮程式碼
+    if(cur === 1){
+      $('#hlCode').classList.add('on');
+    }
+
+    // 第 2 章：高亮 pin 42
+    if(cur >= 2){
+      $('#hlPin').classList.add('on');
+    }
+
+    // 第 3 章：高亮 PMOD + 訊號開始跑
+    if(cur >= 3){
+      $('#hlPmod').classList.add('on');
+      $('#gDot').classList.add('on');
+      $('#sigHi').setAttribute('opacity','1');
+    }
+
+    // 第 4 章：高亮顯示器 + A 段亮
+    if(cur >= 4){
+      $('#hlDisp').classList.add('on');
+      $('#segA').classList.add('lit');
+    }
+
+    // 第 5 章：位數致能
+    if(cur >= 5){
+      $('#digBox1').classList.add('en');
+      $('#digBox2').classList.add('en');
+    }
+
+    // 第 6 章：全部保持亮
+    if(cur >= 6){
+      // 全部已亮
+    }
+
+    $('#narr').innerHTML = narrative[cur];
+  }
+
+  // 按鈕
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'ArrowLeft')  setChapter(cur-1);
+    if(e.key === 'ArrowRight') setChapter(cur+1);
+  });
+
+  // 支援 ?ch=1..6 直接跳章節
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch') || '1', 10);
+  setChapter(isNaN(start) ? 1 : start);
+})();
+</script>
+<a href="index.html" class="back-home">← 返回主頁</a>
+</body>
+</html>
