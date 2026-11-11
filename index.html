@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WiFiBoy iCE40Pro · 7 段顯示器學習動畫</title>
+<title>WiFiBoy OK-iCE40Pro · FPGA 學習教材</title>
 <style>
   :root{
     --bg:#0b1020; --line:#263352; --text:#dce6ff; --dim:#8fa0c4;
@@ -31,13 +31,12 @@
     box-shadow:0 0 10px var(--green)}
   .brand b{color:var(--text);font-weight:800}
   .brand .model{color:var(--cyan);font-weight:700}
-  h1{font-size:32px;margin:0 0 12px;font-weight:800;letter-spacing:.5px}
+  h1{font-size:34px;margin:0 0 14px;font-weight:800;letter-spacing:.5px}
   h1 .accent{color:var(--accent)}
-  .sub{color:var(--dim);font-size:15px;line-height:1.9}
+  .sub{color:var(--dim);font-size:15px;line-height:1.95;max-width:760px;margin:0 auto}
   .sub b{color:var(--text)}
 
-  /* ---------- 硬體區 ---------- */
-  .hardware{margin:36px 0 40px}
+  /* ---------- 區塊標題 ---------- */
   .sec-title{
     display:flex;align-items:center;gap:10px;
     font-size:14px;color:var(--dim);margin:0 0 14px;
@@ -46,18 +45,22 @@
   .sec-title::before,.sec-title::after{
     content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,#263352,transparent)
   }
+
+  /* ---------- 硬體卡 ---------- */
+  .hardware{margin:36px 0 36px}
   .board{
     display:flex;align-items:center;gap:16px;flex-wrap:wrap;
     background:linear-gradient(180deg,#0f1729,#0b1220);
-    border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:14px;
+    border:1px solid var(--line);border-radius:14px;padding:18px 22px;
   }
-  .board-icon{flex:0 0 auto;width:46px;height:46px;color:var(--cyan)}
-  .board-name{font-size:15px;font-weight:700}
+  .board-icon{flex:0 0 auto;width:52px;height:52px;color:var(--cyan)}
+  .board-name{font-size:16px;font-weight:700}
   .board-name span{color:var(--accent)}
-  .board-spec{font-size:12.5px;color:var(--dim);line-height:1.7;margin-top:3px}
+  .board-spec{font-size:12.5px;color:var(--dim);line-height:1.8;margin-top:4px}
+  .board-spec b{color:var(--text)}
 
-  /* ---------- PMOD 分頁按鈕 ---------- */
-  .pmods{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  /* ---------- PMOD 分頁 ---------- */
+  .pmods{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px}
   @media(max-width:900px){.pmods{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:560px){.pmods{grid-template-columns:repeat(2,1fr)}}
   .pmod{
@@ -83,13 +86,16 @@
   .pmod-name{font-size:12.5px;font-weight:700}
   .pmod-desc{font-size:10.5px;color:var(--dim);margin-top:4px;line-height:1.5}
 
-  /* ---------- 步驟區 ---------- */
-  .steps-head{display:flex;align-items:center;gap:10px;margin:6px 0 14px}
-  .steps-head h2{font-size:15px;margin:0;font-weight:700}
-  .steps-head .tag{
+  /* ---------- 教材面板 ---------- */
+  .panel-head{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+  .panel-head h2{font-size:19px;margin:0;font-weight:800}
+  .panel-head .tag{
     font-size:11px;color:var(--dim);border:1px solid var(--line);
     padding:2px 9px;border-radius:999px;
   }
+  .panel-desc{color:var(--dim);font-size:13.5px;line-height:1.8;margin:0 0 18px}
+  .panel-desc b{color:var(--accent)}
+
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   @media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:600px){.grid{grid-template-columns:1fr}}
@@ -114,7 +120,7 @@
 
   /* 即將推出 */
   .coming{
-    border:1px dashed #2c3a5c;border-radius:16px;padding:48px 24px;
+    border:1px dashed #2c3a5c;border-radius:16px;padding:52px 24px;
     text-align:center;color:var(--dim);background:#0b1220;
   }
   .coming .big{font-size:34px;margin-bottom:10px;opacity:.35}
@@ -127,22 +133,23 @@
 </head>
 <body>
 <div class="wrap">
+  <!-- ============ 裝置介紹（首頁主體） ============ -->
   <header>
     <div class="brand">
       <span class="brand-dot"></span>
       <b>WiFiBoy</b><span class="model">OK-iCE40Pro</span>
     </div>
-    <h1>7 段顯示器 <span class="accent">學習動畫</span></h1>
+    <h1>WiFiBoy <span class="accent">OK-iCE40Pro</span></h1>
     <div class="sub">
-      從「點亮一段」到「00~99」，9 個步驟，每步都有互動動畫。<br>
-      點選上方 PMOD 外設切換教材，每頁右上角都有「返回主頁」。
+      一台以 <b>Lattice iCE40UP5K</b> 為核心的 FPGA 學習板。<br>
+      用 Verilog 寫程式，透過 <b>PMOD 介面</b>驅動各種外設，每一步都有互動動畫，
+      讓你看懂「程式 → 腳位 → 外設」是怎麼串起來的。
     </div>
   </header>
 
-  <!-- ============ 硬體與 PMOD ============ -->
+  <!-- ============ 硬體規格 ============ -->
   <section class="hardware">
-    <h2 class="sec-title">硬體與 PMOD 外設</h2>
-
+    <h2 class="sec-title">硬體規格</h2>
     <div class="board">
       <svg class="board-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2">
         <rect x="6" y="10" width="36" height="28" rx="4"/>
@@ -154,14 +161,19 @@
       <div>
         <div class="board-name">WiFiBoy <span>OK-iCE40Pro</span></div>
         <div class="board-spec">
-          Lattice iCE40UP5K-SG48 · 5280 LUT · 30 BRAM · 1 PLL · 12MHz 時鐘<br>
-          PMOD 介面 12 腳：9 支訊號（p1~p9）+ 3.3V / GND / 5V
+          FPGA：<b>Lattice iCE40UP5K-SG48</b> · 5280 LUT · 30 BRAM · 1 PLL<br>
+          系統時鐘：<b>12MHz</b> · 燒錄介面：USB<br>
+          PMOD：<b>12 腳</b>（9 支訊號 p1~p9 + 3.3V / GND / 5V）
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ============ PMOD 外設與教材 ============ -->
+  <section>
+    <h2 class="sec-title">PMOD 外設與學習教材</h2>
 
     <div class="pmods">
-      <!-- 1. 7 段顯示器（預設選中） -->
       <button class="pmod active" data-pmod="seg">
         <svg viewBox="0 0 48 48" fill="#ffd54a">
           <rect x="10" y="5" width="28" height="4" rx="2"/>
@@ -176,7 +188,6 @@
         <div class="pmod-desc">共陰直驅 · A~G + 2 位數</div>
       </button>
 
-      <!-- 2. RGB6 LED -->
       <button class="pmod" data-pmod="rgb6">
         <svg viewBox="0 0 48 48">
           <circle cx="14" cy="24" r="8" fill="#ff5a5a" opacity=".95"/>
@@ -188,7 +199,6 @@
         <div class="pmod-desc">3×6 矩陣（R/G/B + D0~D5）</div>
       </button>
 
-      <!-- 3. VGA -->
       <button class="pmod" data-pmod="vga">
         <svg viewBox="0 0 48 48" fill="none" stroke="#3ad0e6" stroke-width="2.6">
           <rect x="5" y="7" width="38" height="26" rx="3"/>
@@ -199,7 +209,6 @@
         <div class="pmod-desc">6-bit 色（R/G/B 各 2bit）+ HS/VS</div>
       </button>
 
-      <!-- 4. HDMI -->
       <button class="pmod" data-pmod="hdmi">
         <svg viewBox="0 0 48 48" fill="none" stroke="#a78bfa" stroke-width="2.4">
           <path d="M9 14 h30 l-3 8 h-24 z" />
@@ -211,7 +220,6 @@
         <div class="pmod-desc">SIL164CT64 DVI 發射器（2:2:1）</div>
       </button>
 
-      <!-- 5. WS2812B -->
       <button class="pmod" data-pmod="ws2812b">
         <svg viewBox="0 0 48 48">
           <rect x="3" y="20" width="42" height="8" rx="4" fill="#263352"/>
@@ -224,166 +232,196 @@
         <div class="pmod-desc">可定址 LED 燈條（DIN）</div>
       </button>
     </div>
-  </section>
 
-  <!-- ============ 學習步驟（依選中的外設切換） ============ -->
-  <div class="steps-head">
-    <h2 id="stepsTitle">7 段顯示器 · 學習步驟</h2>
-    <span class="tag" id="stepsCount">9 個步驟</span>
-  </div>
-
-  <!-- 7 段顯示器的 9 個步驟 -->
-  <div class="grid" id="stepsSeg">
-    <a class="card" href="step1.html">
-      <div class="thumb"><img src="img/step1.png" alt="step1" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 01</div>
-        <div class="title">點亮 A 段</div>
-        <div class="desc">最短的顯示程式：Verilog → FPGA 腳位 → PMOD → 7 段顯示器</div>
-        <div class="go">開始 →</div>
+    <!-- 7 段顯示器教材 -->
+    <div id="panelSeg">
+      <div class="panel-head">
+        <h2>7 段顯示器 · 學習動畫</h2>
+        <span class="tag">9 個步驟</span>
       </div>
-    </a>
+      <p class="panel-desc">
+        從「點亮一段」到「<b>00~99</b>」自動計數，9 個步驟、每步都有互動動畫。<br>
+        建議照順序做，每步都「看到結果」再往下。
+      </p>
 
-    <a class="card" href="step2.html">
-      <div class="thumb"><img src="img/step2.png" alt="step2" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 02</div>
-        <div class="title">輪流點亮 A~G</div>
-        <div class="desc">時鐘除頻 → step 計數 → case 選段，每秒換一段</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+      <div class="grid">
+        <a class="card" href="step1.html">
+          <div class="thumb"><img src="img/step1.png" alt="step1" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">點亮 A 段</div>
+            <div class="desc">最短的顯示程式：Verilog → FPGA 腳位 → PMOD → 7 段顯示器</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step3.html">
-      <div class="thumb"><img src="img/step3.png" alt="step3" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 03</div>
-        <div class="title">逐腳掃描（找腳位）</div>
-        <div class="desc">9 個腳輪流拉高 → 觀察哪段亮 → 得出腳位對照表</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step2.html">
+          <div class="thumb"><img src="img/step2.png" alt="step2" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">輪流點亮 A~G</div>
+            <div class="desc">時鐘除頻 → step 計數 → case 選段，每秒換一段</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step4.html">
-      <div class="thumb"><img src="img/step4.png" alt="step4" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 04</div>
-        <div class="title">解碼器（數字 → 段碼）</div>
-        <div class="desc">case 查表：4-bit 數字 → 7-bit 段碼 → 顯示器</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step3.html">
+          <div class="thumb"><img src="img/step3.png" alt="step3" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">逐腳掃描（找腳位）</div>
+            <div class="desc">9 個腳輪流拉高 → 觀察哪段亮 → 得出腳位對照表</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step5.html">
-      <div class="thumb"><img src="img/step5.png" alt="step5" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 05</div>
-        <div class="title">解碼器單元測試</div>
-        <div class="desc">testbench 餵 input → 比對 output → ALL PASS</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step4.html">
+          <div class="thumb"><img src="img/step4.png" alt="step4" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 04</div>
+            <div class="title">解碼器（數字 → 段碼）</div>
+            <div class="desc">case 查表：4-bit 數字 → 7-bit 段碼 → 顯示器</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step6.html">
-      <div class="thumb"><img src="img/step6.png" alt="step6" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 06</div>
-        <div class="title">0~9 計數</div>
-        <div class="desc">除頻 1Hz → units 計數 → 每秒 +1</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step5.html">
+          <div class="thumb"><img src="img/step5.png" alt="step5" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 05</div>
+            <div class="title">解碼器單元測試</div>
+            <div class="desc">testbench 餵 input → 比對 output → ALL PASS</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step7.html">
-      <div class="thumb"><img src="img/step7.png" alt="step7" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 07</div>
-        <div class="title">多工掃描</div>
-        <div class="desc">段線共用 + 位數分時 → 兩位數看起來同時亮</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step6.html">
+          <div class="thumb"><img src="img/step6.png" alt="step6" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 06</div>
+            <div class="title">0~9 計數</div>
+            <div class="desc">除頻 1Hz → units 計數 → 每秒 +1</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step8.html">
-      <div class="thumb"><img src="img/step8.png" alt="step8" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 08</div>
-        <div class="title">0~99 計數</div>
-        <div class="desc">十進位進位 + 兩個解碼器 + 多工 → 00~99</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
+        <a class="card" href="step7.html">
+          <div class="thumb"><img src="img/step7.png" alt="step7" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 07</div>
+            <div class="title">多工掃描</div>
+            <div class="desc">段線共用 + 位數分時 → 兩位數看起來同時亮</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-    <a class="card" href="step9.html">
-      <div class="thumb"><img src="img/step9.png" alt="step9" loading="lazy"></div>
-      <div class="body">
-        <div class="num">STEP 09</div>
-        <div class="title">共陰 / 共陽切換</div>
-        <div class="desc">parameter 切換 → 段碼/位數反相，兩種硬體都能用</div>
-        <div class="go">開始 →</div>
-      </div>
-    </a>
-  </div>
+        <a class="card" href="step8.html">
+          <div class="thumb"><img src="img/step8.png" alt="step8" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 08</div>
+            <div class="title">0~99 計數</div>
+            <div class="desc">十進位進位 + 兩個解碼器 + 多工 → 00~99</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
 
-  <!-- 其他外設（尚未有教材） -->
-  <div id="stepsComing" hidden>
-    <div class="coming">
-      <div class="big">🚧</div>
-      <div class="t" id="comingTitle">RGB6 LED 的學習步驟</div>
-      <div class="d">
-        這個外設的教材<b>即將推出</b>。<br>
-        目前可以先看「7 段顯示器」的 9 個步驟。
+        <a class="card" href="step9.html">
+          <div class="thumb"><img src="img/step9.png" alt="step9" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 09</div>
+            <div class="title">共陰 / 共陽切換</div>
+            <div class="desc">parameter 切換 → 段碼/位數反相，兩種硬體都能用</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
       </div>
     </div>
-  </div>
+
+    <!-- 其他外設（尚未有教材） -->
+    <div id="panelComing" hidden>
+      <div class="panel-head">
+        <h2 id="comingTitle">VGA · 學習動畫</h2>
+        <span class="tag">即將推出</span>
+      </div>
+      <p class="panel-desc" id="comingDesc">
+        這個外設的教材正在製作中。
+      </p>
+      <div class="coming">
+        <div class="big">🚧</div>
+        <div class="t" id="comingName">VGA</div>
+        <div class="d">
+          教材<b>即將推出</b>。<br>
+          目前可以先看「7 段顯示器」的 9 個步驟。
+        </div>
+      </div>
+    </div>
+  </section>
 
   <footer>
     純靜態網頁，用瀏覽器開啟即可，免安裝。<br>
-    WiFiBoy OK-iCE40Pro · 7 段顯示器學習動畫
+    WiFiBoy OK-iCE40Pro · FPGA 學習教材
   </footer>
 </div>
 
 <script>
 (function(){
-  const NAMES = {
-    seg:     '7 段顯示器',
-    rgb6:    'RGB6 LED',
-    vga:     'VGA',
-    hdmi:    'HDMI',
-    ws2812b: 'WS2812B'
+  const INFO = {
+    seg: {
+      name: '7 段顯示器',
+      title: '7 段顯示器 · 學習動畫',
+      desc: '從「點亮一段」到「<b>00~99</b>」自動計數，9 個步驟、每步都有互動動畫。<br>建議照順序做，每步都「看到結果」再往下。'
+    },
+    rgb6: {
+      name: 'RGB6 LED',
+      title: 'RGB6 LED · 學習動畫',
+      desc: '3×6 的 RGB 矩陣（R/G/B + D0~D5 六選），教你怎麼掃描點亮與混色。'
+    },
+    vga: {
+      name: 'VGA',
+      title: 'VGA · 學習動畫',
+      desc: '6-bit 色彩（R/G/B 各 2bit）與 HS/VS 同步訊號，從時序產生到畫出圖形。'
+    },
+    hdmi: {
+      name: 'HDMI',
+      title: 'HDMI · 學習動畫',
+      desc: '透過 SIL164CT64 DVI 發射器輸出，2:2:1 色位與 TMDS 時序。'
+    },
+    ws2812b: {
+      name: 'WS2812B',
+      title: 'WS2812B · 學習動畫',
+      desc: '單線可定址 LED 燈條（DIN），教你精準的位元時序與串接。'
+    }
   };
 
-  const btns   = document.querySelectorAll('.pmod');
-  const title  = document.getElementById('stepsTitle');
-  const count  = document.getElementById('stepsCount');
-  const segBox = document.getElementById('stepsSeg');
-  const comBox = document.getElementById('stepsComing');
-  const comTtl = document.getElementById('comingTitle');
+  const btns = document.querySelectorAll('.pmod');
+  const panelSeg = document.getElementById('panelSeg');
+  const panelComing = document.getElementById('panelComing');
+  const comingTitle = document.getElementById('comingTitle');
+  const comingDesc = document.getElementById('comingDesc');
+  const comingName = document.getElementById('comingName');
 
   function select(key){
+    const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    title.textContent = NAMES[key] + ' · 學習步驟';
-
     if(key === 'seg'){
-      segBox.hidden = false;
-      comBox.hidden = true;
-      count.textContent = '9 個步驟';
-      count.style.display = '';
+      panelSeg.hidden = false;
+      panelComing.hidden = true;
     } else {
-      segBox.hidden = true;
-      comBox.hidden = false;
-      comTtl.textContent = NAMES[key] + ' 的學習步驟';
-      count.textContent = '即將推出';
+      panelSeg.hidden = true;
+      panelComing.hidden = false;
+      comingTitle.textContent = info.title;
+      comingDesc.innerHTML = info.desc;
+      comingName.textContent = info.name;
     }
   }
 
   btns.forEach(b => b.addEventListener('click', () => select(b.dataset.pmod)));
 
-  // 預設：7 段顯示器；可用 ?pmod=vga 之類直接指定
+  // 預設：7 段顯示器；可用 ?pmod=vga 直接指定
   const params = new URLSearchParams(location.search);
   const pre = params.get('pmod');
-  select(pre && NAMES[pre] ? pre : 'seg');
+  select(pre && INFO[pre] ? pre : 'seg');
 })();
 </script>
 </body>
