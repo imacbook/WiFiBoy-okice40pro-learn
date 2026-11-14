@@ -139,7 +139,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：動畫 = 每個畫面（60Hz）改變一點點。", "<b>② 程式碼</b>：每張畫面結束時（hcnt=799、vcnt=524）更新方塊座標。", "<b>③ 更新</b>：<code>in_box</code> 判斷目前像素是否落在方塊內。", "<b>④ 結果</b>：一個白色方塊在畫面上移動。"];

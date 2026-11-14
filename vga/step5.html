@@ -139,7 +139,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：R/G/B 各 2 bit，共 2^6 = <b>64 色</b>。", "<b>② 程式碼</b>：R 隨水平、G 隨垂直、B 是兩者 XOR。", "<b>③ 色深</b>：6-bit 色雖然不多，但漸層看起來還是很漂亮。", "<b>④ 結果</b>：彩色漸層。"];

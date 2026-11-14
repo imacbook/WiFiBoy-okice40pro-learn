@@ -139,7 +139,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：800×525 掃描區中，只有左上 <b>640×480</b> 是可視區，其餘是<b>消隱區</b>（不顯示）。", "<b>② 程式碼</b>：<code>display</code> 判斷是否在可視區；不在就給黑色。", "<b>③ 邊界</b>：棋盤格用 <code>hcnt[9]^vcnt[9]</code> 產生交錯色塊。", "<b>④ 結果</b>：黑白相間的棋盤格。"];

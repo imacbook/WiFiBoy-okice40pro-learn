@@ -214,7 +214,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlDin').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 硬體</b>：WS2812B 用<b>單線 DIN</b> 傳資料，每顆 LED 24 bit（順序 <b>GRB</b>）。", "<b>② 時序</b>：每個 bit 15 個 12MHz 週期（1.25µs）。<code>0</code> = 高 5 低 10，<code>1</code> = 高 10 低 5。", "<b>③ 資料</b>：紅色 = R:255 G:0 B:0 → GRB = <code>00 FF 00</code> → <code>24'h00FF00</code>。", "<b>④ 結果</b>：送完 24 bit 再拉低 1200 週期（reset），第 0 顆亮紅。"];

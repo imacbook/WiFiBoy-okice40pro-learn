@@ -214,7 +214,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlDin').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 位置</b>：<code>pos</code> 每 125ms +1。", "<b>② 判斷</b>：只有 <code>idx == pos</code> 的那顆亮綠色，其他送黑色。", "<b>③ 效果</b>：一顆光點沿著 12 顆跑。", "<b>④ 結果</b>：追逐燈。"];

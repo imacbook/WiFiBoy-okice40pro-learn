@@ -214,7 +214,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlDin').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：用一個 <code>color_of(idx)</code> 函式，依 LED 編號給不同顏色。", "<b>② 彩虹</b>：12 個顏色從紅→橙→黃→綠→…→粉。", "<b>③ 傳送</b>：總共 288 bit，順序 LED0→LED11。", "<b>④ 結果</b>：12 顆排成一道彩虹。"];

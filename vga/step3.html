@@ -139,7 +139,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：垂直計數 <code>vcnt</code> 從 0 數到 524（每張畫面）。顏色只跟 vcnt 有關 → 水平條紋。", "<b>② 程式碼</b>：<code>vcnt[9:8]</code> 每 256 行變化一次 → 4 條色帶。", "<b>③ 時序</b>：<code>vs</code> 在 vcnt 490~491 時拉低（垂直同步脈衝）。", "<b>④ 結果</b>：4 條綠色深淺不同的水平條紋。"];

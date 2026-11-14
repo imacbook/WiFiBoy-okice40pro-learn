@@ -139,7 +139,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 概念</b>：水平計數 <code>hcnt</code> 從 0 數到 799（每行）。顏色只跟 hcnt 有關 → 垂直條紋。", "<b>② 程式碼</b>：<code>hcnt[9:8]</code> 每 256 像素變化一次 → 4 條色帶。", "<b>③ 時序</b>：<code>hs</code> 在 hcnt 656~751 時拉低（水平同步脈衝）。", "<b>④ 結果</b>：4 條紅色深淺不同的垂直條紋。"];

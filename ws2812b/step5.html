@@ -214,7 +214,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlDin').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 相位</b>：<code>phase</code> 每 250ms +1。", "<b>② 位移</b>：每顆的顏色 = <code>(idx + phase) % 12</code>，所以顏色往後移一格。", "<b>③ 效果</b>：看起來像彩虹沿著燈條流動。", "<b>④ 結果</b>：流光動畫。"];

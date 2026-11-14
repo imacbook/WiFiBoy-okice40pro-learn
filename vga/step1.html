@@ -140,7 +140,7 @@
     if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
     if(cur>=4) $('#hlScreen').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 針腳</b>：VGA 用 9 個腳位。6 個顏色（R1/R0、G1/G0、B1/B0，各 2 bit）、2 個同步（HS、VS）、1 個音訊。", "<b>② 顯示原理</b>：VGA 是<b>逐行掃描</b>——從左上角開始，一像素一像素往右畫，畫完一行換下一行，畫完一張再從頭。", "<b>③ 時序</b>：<code>HS</code> 每畫完一行送低脈衝；<code>VS</code> 每畫完一張送低脈衝。螢幕靠這兩個訊號對齊。", "<b>④ 結果</b>：螢幕出現掃描線，由左而右、由上而下。"];

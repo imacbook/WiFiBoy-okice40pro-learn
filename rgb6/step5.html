@@ -212,7 +212,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlPmod').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 硬體</b>：3 條色線的 0/1 組合，剛好對應 8 種顏色。", "<b>② 程式碼</b>：<code>combo</code> 0~7 每秒 +1，直接對應 R/G/B 三條線。", "<b>③ 動畫</b>：第 0 顆 LED 每秒換一種顏色（8 色循環）。", "<b>④ 結果</b>：黑→藍→綠→青→紅→紫→黃→白。"];

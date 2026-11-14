@@ -214,7 +214,7 @@
     if(cur>=2) $('#hlFpga').classList.add('on');
     if(cur>=3) $('#hlDin').classList.add('on');
     if(cur>=4) $('#hlLed').classList.add('on');
-    $('#narr').innerHTML = NARR[cur];
+    $('#narr').innerHTML = NARR[cur-1];
   }
 
   const NARR = ["<b>① 串接</b>：資料是「串」出去的，第 0 顆收到 24 bit 後會把後面的轉給第 1 顆。", "<b>② 順序</b>：先送第 0 顆（紅）、再送第 1 顆（綠），總共 48 bit。", "<b>③ 更新</b>：全部送完後拉低 1200 週期，兩顆同時更新。", "<b>④ 結果</b>：第 0 顆紅、第 1 顆綠。"];
