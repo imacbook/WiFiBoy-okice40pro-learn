@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step4：六顆不同顏色</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .plate{fill:#0d1526;stroke:#2c3a5c}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .wire{stroke:#222e49;stroke-width:6;stroke-linecap:round;transition:stroke .15s}
+  .wire.on{stroke:var(--accent);filter:drop-shadow(0 0 6px #ffd54a)}
+  .bind{font-size:24px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step4：六顆不同顏色</h1>
+  <div class="sub">每顆有自己的顏色，靠快速掃描讓它們同時亮。</div>
+
+  <div class="chapters" id="chapters">
+    <button data-ch="1" class="on">① 硬體</button>
+    <button data-ch="2">② 程式碼</button>
+    <button data-ch="3">③ 動畫</button>
+    <button data-ch="4">④ 結果</button>
+  </div>
+
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      
+      <!-- 程式碼 -->
+      <g id="gCode">
+        <rect x="20" y="60" width="300" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">程式碼</text>
+        <text x="40" y="118" class="mono" style="font-size:11.5px" fill="#9fd4ff">case (scan)</text><text x="40" y="138" class="mono" style="font-size:11.5px" fill="#9fd4ff">  0: color = 3'b100;  // 紅</text><text x="40" y="158" class="mono" style="font-size:11.5px" fill="#9fd4ff">  1: color = 3'b010;  // 綠</text><text x="40" y="178" class="mono" style="font-size:11.5px" fill="#9fd4ff">  2: color = 3'b001;  // 藍</text><text x="40" y="198" class="mono" style="font-size:11.5px" fill="#9fd4ff">  3: color = 3'b110;  // 黃</text><text x="40" y="218" class="mono" style="font-size:11.5px" fill="#9fd4ff">  4: color = 3'b101;  // 紫</text><text x="40" y="238" class="mono" style="font-size:11.5px" fill="#9fd4ff">  5: color = 3'b011;  // 青</text><text x="40" y="258" class="mono" style="font-size:11.5px" fill="#9fd4ff">endcase</text><text x="40" y="278" class="mono" style="font-size:11.5px" fill="#9fd4ff"></text><text x="40" y="298" class="mono" style="font-size:11.5px" fill="#9fd4ff">assign r = ~color[2];  // 共陽</text><text x="40" y="318" class="mono" style="font-size:11.5px" fill="#9fd4ff">assign g = ~color[1];</text><text x="40" y="338" class="mono" style="font-size:11.5px" fill="#9fd4ff">assign b = ~color[0];</text>
+      </g>
+
+      <!-- FPGA -->
+      <g id="gFpga">
+        <rect x="345" y="60" width="205" height="340" rx="16" class="chip"/>
+        <text x="447" y="88" text-anchor="middle" class="lbl-strong">FPGA</text>
+        <text x="447" y="108" text-anchor="middle" class="lbl" style="font-size:10px">iCE40UP5K</text>
+
+        <text x="365" y="140" class="lbl" style="font-size:11px">色線（R/G/B）</text>
+        <text id="colorVal" x="447" y="166" text-anchor="middle" class="bind" style="font-size:20px">1 1 1</text>
+
+        <text x="365" y="200" class="lbl" style="font-size:11px">選線（D0~D5）</text>
+        <text id="selVal" x="447" y="226" text-anchor="middle" class="bind" style="font-size:20px">1 0 0 0 0 0</text>
+
+        <text x="447" y="270" text-anchor="middle" class="lbl" style="font-size:11px">共陽：色線 0=亮、選線 1=致能</text>
+        <text id="stateTxt" x="447" y="310" text-anchor="middle" class="lbl" style="font-size:12px;fill:#ffd54a">—</text>
+        <text x="447" y="340" text-anchor="middle" class="lbl" style="font-size:10px">一次只亮一顆（掃描）</text>
+      </g>
+
+      <!-- PMOD -->
+      <g id="gPmod">
+        <rect x="580" y="60" width="170" height="340" rx="12" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="665" y="86" text-anchor="middle" class="lbl-strong" style="font-size:13px">PMOD 排線</text>
+        <rect id="w0" class="wire" x="600" y="110" width="120" height="7" rx="3.5"/><text x="590" y="117" text-anchor="end" class="lbl" style="font-size:10px">R</text><rect id="w1" class="wire" x="600" y="140" width="120" height="7" rx="3.5"/><text x="590" y="147" text-anchor="end" class="lbl" style="font-size:10px">G</text><rect id="w2" class="wire" x="600" y="170" width="120" height="7" rx="3.5"/><text x="590" y="177" text-anchor="end" class="lbl" style="font-size:10px">B</text><rect id="w3" class="wire" x="600" y="200" width="120" height="7" rx="3.5"/><text x="590" y="207" text-anchor="end" class="lbl" style="font-size:10px">D0</text><rect id="w4" class="wire" x="600" y="230" width="120" height="7" rx="3.5"/><text x="590" y="237" text-anchor="end" class="lbl" style="font-size:10px">D1</text><rect id="w5" class="wire" x="600" y="260" width="120" height="7" rx="3.5"/><text x="590" y="267" text-anchor="end" class="lbl" style="font-size:10px">D2</text><rect id="w6" class="wire" x="600" y="290" width="120" height="7" rx="3.5"/><text x="590" y="297" text-anchor="end" class="lbl" style="font-size:10px">D3</text><rect id="w7" class="wire" x="600" y="320" width="120" height="7" rx="3.5"/><text x="590" y="327" text-anchor="end" class="lbl" style="font-size:10px">D4</text><rect id="w8" class="wire" x="600" y="350" width="120" height="7" rx="3.5"/><text x="590" y="357" text-anchor="end" class="lbl" style="font-size:10px">D5</text>
+      </g>
+
+      <!-- LED -->
+      <g id="gLeds">
+        <rect x="790" y="60" width="290" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="935" y="86" text-anchor="middle" class="lbl-strong" style="font-size:13px">RGB6 LED（6 顆）</text>
+        <circle id="led0" cx="850" cy="170" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="850" y="224" text-anchor="middle" class="lbl" style="font-size:11px">D0</text><circle id="led1" cx="930" cy="170" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="930" y="224" text-anchor="middle" class="lbl" style="font-size:11px">D1</text><circle id="led2" cx="1010" cy="170" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="1010" y="224" text-anchor="middle" class="lbl" style="font-size:11px">D2</text><circle id="led3" cx="850" cy="290" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="850" y="344" text-anchor="middle" class="lbl" style="font-size:11px">D3</text><circle id="led4" cx="930" cy="290" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="930" y="344" text-anchor="middle" class="lbl" style="font-size:11px">D4</text><circle id="led5" cx="1010" cy="290" r="32" fill="#1b2740" stroke="#2c3a5c" stroke-width="2" style="transition:fill .2s,filter .2s"/><text x="1010" y="344" text-anchor="middle" class="lbl" style="font-size:11px">D5</text>
+      </g>
+
+      <rect id="hlCode" x="20" y="60" width="300" height="340" rx="14" class="hl-box"/>
+      <rect id="hlFpga" x="345" y="60" width="205" height="340" rx="16" class="hl-box"/>
+      <rect id="hlPmod" x="580" y="60" width="170" height="340" rx="12" class="hl-box"/>
+      <rect id="hlLed"  x="790" y="60" width="290" height="340" rx="14" class="hl-box"/>
+
+    </svg>
+  </div>
+
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+<a href="../index.html" class="back-home">← 返回主頁</a>
+<script>
+(function(){
+  const MODE = 'fixedColors';
+  const CH = 4;
+  let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  const LED_N = 6;
+  let leds = [];
+  for(let i=0;i<LED_N;i++) leds.push({r:0,g:0,b:0});
+
+  // 掃描用
+  let scan = 0, step = 0, combo = 0, bright = 0, up = true;
+
+  function mix(c){
+    return 'rgb(' + Math.round(c.r*255) + ',' + Math.round(c.g*255) + ',' + Math.round(c.b*255) + ')';
+  }
+
+  function render(){
+    // LED
+    for(let i=0;i<LED_N;i++){
+      const el = $('#led'+i);
+      const c = leds[i];
+      const on = (c.r>0.02 || c.g>0.02 || c.b>0.02);
+      el.setAttribute('fill', on ? mix(c) : '#1b2740');
+      el.style.filter = on ? ('drop-shadow(0 0 16px ' + mix(c) + ')') : 'none';
+      el.style.stroke = on ? '#ffe89a' : '#2c3a5c';
+    }
+    // 色線 / 選線顯示
+    const active = leds.findIndex(c => (c.r>0.02||c.g>0.02||c.b>0.02));
+    const curLed = (active >= 0) ? active : 0;
+    const c = leds[curLed] || {r:0,g:0,b:0};
+    $('#colorVal').textContent = (c.r>0.02?'1':'0') + ' ' + (c.g>0.02?'1':'0') + ' ' + (c.b>0.02?'1':'0');
+    let sel = ['0','0','0','0','0','0'];
+    sel[curLed] = '1';
+    $('#selVal').textContent = sel.join(' ');
+    // PMOD 線
+    const onWire = [];
+    if(c.r>0.02) onWire.push(0);
+    if(c.g>0.02) onWire.push(1);
+    if(c.b>0.02) onWire.push(2);
+    onWire.push(3+curLed);
+    for(let i=0;i<9;i++) $('#w'+i).classList.toggle('on', onWire.includes(i));
+    // 狀態文字
+    const names = ['紅','綠','藍','黃','紫','青'];
+    let st = '';
+    if(MODE==='fixedColors'){ st = '6 顆同時顯示不同顏色'; }
+    else if(MODE==='scan'){ st = '第 ' + curLed + ' 顆亮（白光）'; }
+    else if(MODE==='comboCycle'){ st = '組合 ' + combo + '：' + (c.r>0.02?'R':'') + (c.g>0.02?'G':'') + (c.b>0.02?'B':''); }
+    else if(MODE==='breath'){ st = '亮度 ' + Math.round(bright) + ' / 255'; }
+    else { st = '第 ' + curLed + ' 顆：' + (c.r>0.02?'R':'') + (c.g>0.02?'G':'') + (c.b>0.02?'B':''); }
+    $('#stateTxt').textContent = st;
+  }
+
+  function clearLeds(){ leds = []; for(let i=0;i<LED_N;i++) leds.push({r:0,g:0,b:0}); }
+
+  function tick(){
+    if(MODE==='static'){
+      clearLeds(); leds[0] = {r:1,g:0,b:0};
+    } else if(MODE==='colorCycle'){
+      clearLeds();
+      step = (step+1) % 3;
+      leds[0] = step===0 ? {r:1,g:0,b:0} : step===1 ? {r:0,g:1,b:0} : {r:0,g:0,b:1};
+    } else if(MODE==='scan'){
+      clearLeds();
+      scan = (scan+1) % 6;
+      leds[scan] = {r:1,g:1,b:1};
+    } else if(MODE==='fixedColors'){
+      leds = [
+        {r:1,g:0,b:0},{r:0,g:1,b:0},{r:0,g:0,b:1},
+        {r:1,g:1,b:0},{r:1,g:0,b:1},{r:0,g:1,b:1}
+      ];
+    } else if(MODE==='comboCycle'){
+      clearLeds();
+      combo = (combo+1) % 8;
+      leds[0] = {r:(combo>>2)&1, g:(combo>>1)&1, b:combo&1};
+    } else if(MODE==='breath'){
+      clearLeds();
+      if(up){ bright += 8; if(bright>=255){bright=255; up=false;} }
+      else  { bright -= 8; if(bright<=0){bright=0; up=true;} }
+      const v = bright/255;
+      leds[0] = {r:0.35+0.65*v, g:0.05+0.1*v, b:0.05+0.1*v};
+    }
+    render();
+  }
+
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) $('#hlFpga').classList.add('on');
+    if(cur>=3) $('#hlPmod').classList.add('on');
+    if(cur>=4) $('#hlLed').classList.add('on');
+    $('#narr').innerHTML = NARR[cur];
+  }
+
+  const NARR = ["<b>① 硬體</b>：6 顆共用 3 條色線，同一時間只能顯示一種顏色。", "<b>② 程式碼</b>：每顆 LED 有自己的 <code>color</code>，掃描時動態切換色線。", "<b>③ 動畫</b>：6 顆 LED 分別是紅、綠、藍、黃、紫、青（快速掃描，看起來同時亮）。", "<b>④ 結果</b>：6 顆同時亮不同顏色。"];
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+
+  const speed = (MODE==='breath') ? 40 : (MODE==='fixedColors' ? 200 : 900);
+  setInterval(tick, speed);
+  tick();
+})();
+</script>
+</body>
+</html>

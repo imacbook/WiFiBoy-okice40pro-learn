@@ -337,6 +337,75 @@
       </div>
     </div>
 
+
+    <!-- RGB6 LED 教材 -->
+    <div id="panelRgb6" hidden>
+      <div class="panel-head">
+        <h2>RGB6 LED · 學習動畫</h2>
+        <span class="tag">6 個步驟</span>
+      </div>
+      <p class="panel-desc">
+        3 條色線（R/G/B）＋ 6 條選線（D0~D5）的 <b>RGB 矩陣</b>。<br>
+        從「點亮一顆」到「呼吸燈 PWM」，6 個步驟、每步都有互動動畫。
+      </p>
+      <div class="grid">
+        <a class="card" href="rgb6/step1.html">
+          <div class="thumb"><img src="img/rgb6_step1.png" alt="rgb6 step1" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">點亮一顆紅燈</div>
+            <div class="desc">色線 + 選線的矩陣原理，只亮第 0 顆紅燈</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="rgb6/step2.html">
+          <div class="thumb"><img src="img/rgb6_step2.png" alt="rgb6 step2" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">三色輪流</div>
+            <div class="desc">同一顆 LED 每秒換 R/G/B</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="rgb6/step3.html">
+          <div class="thumb"><img src="img/rgb6_step3.png" alt="rgb6 step3" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">六顆輪流掃描</div>
+            <div class="desc">一次只開一顆，確認 6 條選線</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="rgb6/step4.html">
+          <div class="thumb"><img src="img/rgb6_step4.png" alt="rgb6 step4" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 04</div>
+            <div class="title">六顆不同顏色</div>
+            <div class="desc">快速掃描，6 顆同時亮不同色</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="rgb6/step5.html">
+          <div class="thumb"><img src="img/rgb6_step5.png" alt="rgb6 step5" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 05</div>
+            <div class="title">混色 8 種</div>
+            <div class="desc">RGB 三色的 8 種組合</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="rgb6/step6.html">
+          <div class="thumb"><img src="img/rgb6_step6.png" alt="rgb6 step6" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 06</div>
+            <div class="title">呼吸燈 PWM</div>
+            <div class="desc">用 PWM 做出漸亮漸暗</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- 其他外設（尚未有教材） -->
     <div id="panelComing" hidden>
       <div class="panel-head">
@@ -395,6 +464,7 @@
 
   const btns = document.querySelectorAll('.pmod');
   const panelSeg = document.getElementById('panelSeg');
+  const panelRgb6 = document.getElementById('panelRgb6');
   const panelComing = document.getElementById('panelComing');
   const comingTitle = document.getElementById('comingTitle');
   const comingDesc = document.getElementById('comingDesc');
@@ -404,12 +474,13 @@
     const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    if(key === 'seg'){
-      panelSeg.hidden = false;
-      panelComing.hidden = true;
-    } else {
-      panelSeg.hidden = true;
-      panelComing.hidden = false;
+    const hasOwn = (key === 'seg' || key === 'rgb6');
+
+    panelSeg.hidden  = (key !== 'seg');
+    panelRgb6.hidden = (key !== 'rgb6');
+    panelComing.hidden = hasOwn;
+
+    if(!hasOwn){
       comingTitle.textContent = info.title;
       comingDesc.innerHTML = info.desc;
       comingName.textContent = info.name;
