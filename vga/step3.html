@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step3：垂直掃描（VS）</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .bind{font-size:20px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step3：垂直掃描（VS）</h1>
+  <div class="sub">用垂直計數 vcnt 決定顏色，畫出水平條紋。</div>
+  <div class="chapters" id="chapters"><button data-ch="1" class="on">① 概念</button><button data-ch="2">② 程式碼</button><button data-ch="3">③ 時序</button><button data-ch="4">④ 結果</button></div>
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      
+      <g id="gCode">
+        <rect x="20" y="60" width="310" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">程式碼</text>
+        <text x="40" y="118" class="mono" style="font-size:11px" fill="#9fd4ff">// vcnt 0~524</text><text x="40" y="136" class="mono" style="font-size:11px" fill="#9fd4ff">wire [1:0] G =</text><text x="40" y="154" class="mono" style="font-size:11px" fill="#9fd4ff">  display ? vcnt[9:8] : 0;</text><text x="40" y="172" class="mono" style="font-size:11px" fill="#9fd4ff"></text><text x="40" y="190" class="mono" style="font-size:11px" fill="#9fd4ff">// 每 256 行變化</text><text x="40" y="208" class="mono" style="font-size:11px" fill="#9fd4ff">// → 4 條水平色帶</text><text x="40" y="226" class="mono" style="font-size:11px" fill="#9fd4ff"></text><text x="40" y="244" class="mono" style="font-size:11px" fill="#9fd4ff">// VS：490~491 拉低</text>
+      </g>
+      <g id="gFpga">
+        <rect x="345" y="60" width="210" height="340" rx="16" class="chip"/>
+        <text x="450" y="88" text-anchor="middle" class="lbl-strong">FPGA</text>
+        <text x="450" y="108" text-anchor="middle" class="lbl" style="font-size:10px">iCE40UP5K</text>
+        <text x="365" y="140" class="lbl" style="font-size:11px">hcnt</text>
+        <text id="hVal" x="450" y="166" text-anchor="middle" class="bind">0</text>
+        <text x="365" y="196" class="lbl" style="font-size:11px">vcnt</text>
+        <text id="vVal" x="450" y="222" text-anchor="middle" class="bind">0</text>
+        <text x="365" y="252" class="lbl" style="font-size:11px">HS / VS</text>
+        <text id="hsVal" x="450" y="278" text-anchor="middle" class="bind" style="font-size:15px">1 / 1</text>
+        <text id="stateTxt" x="450" y="320" text-anchor="middle" class="lbl" style="font-size:11px;fill:#ffd54a">掃描中…</text>
+        <text x="450" y="350" text-anchor="middle" class="lbl" style="font-size:10px">25.125MHz · 800×525</text>
+      </g>
+      <g id="gScreen">
+        <rect x="780" y="60" width="300" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="930" y="86" text-anchor="middle" class="lbl-strong" style="font-size:13px">VGA 螢幕（640×480）</text>
+        <rect x="800" y="102" width="260" height="195" rx="4" fill="#000" stroke="#2c3a5c"/>
+        <defs><clipPath id="screenClip"><rect x="800" y="102" width="260" height="195"/></clipPath></defs>
+        <g clip-path="url(#screenClip)"><rect x="800" y="102" width="260" height="49" fill="rgb(0,0,0)"/><rect x="800" y="151" width="260" height="49" fill="rgb(0,85,0)"/><rect x="800" y="200" width="260" height="49" fill="rgb(0,170,0)"/><rect x="800" y="249" width="260" height="49" fill="rgb(0,255,0)"/></g>
+      </g>
+      <rect id="hlCode" x="20" y="60" width="310" height="340" rx="14" class="hl-box"/>
+      <rect id="hlFpga" x="345" y="60" width="210" height="340" rx="16" class="hl-box"/>
+      <rect id="hlScreen" x="780" y="60" width="300" height="340" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+<a href="../index.html" class="back-home">← 返回主頁</a>
+<script>
+(function(){
+  const CH = 4;
+  let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  const MODE = 'hstripe';
+
+  let h = 0, v = 0;
+
+  function tick(){
+    h = (h + 1) % 800;
+    if(h === 0) v = (v + 1) % 525;
+    const hs = (h >= 656 && h < 752) ? 0 : 1;
+    const vs = (v >= 490 && v < 492) ? 0 : 1;
+    const eh = $('#hVal'), ev = $('#vVal'), es = $('#hsVal'), et = $('#stateTxt');
+    if(eh) eh.textContent = h;
+    if(ev) ev.textContent = v;
+    if(es) es.textContent = hs + ' / ' + vs;
+    if(et) et.textContent = (h < 640 && v < 480) ? '可視區：畫像素' : '消隱區：不畫';
+  }
+
+  function scanTick(){
+    const el = $('#scanline');
+    if(!el) return;
+    const y = 102 + (Date.now()/8 % 190);
+    el.setAttribute('y', y.toFixed(1));
+  }
+
+  let bx = 820, by = 120, dx = 2, dy = 1;
+  function boxTick(){
+    const el = $('#box');
+    if(!el) return;
+    bx += dx; by += dy;
+    if(bx < 800 || bx > 1020) dx = -dx;
+    if(by < 102 || by > 257) dy = -dy;
+    el.setAttribute('x', bx.toFixed(1));
+    el.setAttribute('y', by.toFixed(1));
+  }
+
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
+    if(cur>=3){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
+    if(cur>=4) $('#hlScreen').classList.add('on');
+    $('#narr').innerHTML = NARR[cur];
+  }
+
+  const NARR = ["<b>① 概念</b>：垂直計數 <code>vcnt</code> 從 0 數到 524（每張畫面）。顏色只跟 vcnt 有關 → 水平條紋。", "<b>② 程式碼</b>：<code>vcnt[9:8]</code> 每 256 行變化一次 → 4 條色帶。", "<b>③ 時序</b>：<code>vs</code> 在 vcnt 490~491 時拉低（垂直同步脈衝）。", "<b>④ 結果</b>：4 條綠色深淺不同的水平條紋。"];
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+
+  if(MODE === 'scan') setInterval(scanTick, 30);
+  else if(MODE === 'box') setInterval(boxTick, 30);
+  else setInterval(tick, 12);
+})();
+</script>
+</body>
+</html>

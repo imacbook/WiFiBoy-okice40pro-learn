@@ -475,6 +475,75 @@
       </div>
     </div>
 
+
+    <!-- VGA 教材 -->
+    <div id="panelVga" hidden>
+      <div class="panel-head">
+        <h2>VGA · 學習動畫</h2>
+        <span class="tag">6 個步驟</span>
+      </div>
+      <p class="panel-desc">
+        640×480@60、<b>6-bit 色</b>（R/G/B 各 2 bit）、25.125MHz 像素時脈。<br>
+        從「針腳與顯示原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
+      </p>
+      <div class="grid">
+        <a class="card" href="vga/step1.html">
+          <div class="thumb"><img src="img/vga_step1.png" alt="vga step1" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">VGA 針腳與顯示原理</div>
+            <div class="desc">9 個腳位作用 + 逐行掃描原理</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="vga/step2.html">
+          <div class="thumb"><img src="img/vga_step2.png" alt="vga step2" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">水平掃描（HS）</div>
+            <div class="desc">hcnt 決定顏色 → 垂直條紋</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="vga/step3.html">
+          <div class="thumb"><img src="img/vga_step3.png" alt="vga step3" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">垂直掃描（VS）</div>
+            <div class="desc">vcnt 決定顏色 → 水平條紋</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="vga/step4.html">
+          <div class="thumb"><img src="img/vga_step4.png" alt="vga step4" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 04</div>
+            <div class="title">可視區與消隱</div>
+            <div class="desc">640×480 可見區 + 棋盤格</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="vga/step5.html">
+          <div class="thumb"><img src="img/vga_step5.png" alt="vga step5" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 05</div>
+            <div class="title">漸層畫面</div>
+            <div class="desc">6-bit 色（R/G/B 各 2 bit）</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="vga/step6.html">
+          <div class="thumb"><img src="img/vga_step6.png" alt="vga step6" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 06</div>
+            <div class="title">移動方塊</div>
+            <div class="desc">每張畫面更新 → 60Hz 動畫</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- 其他外設（尚未有教材） -->
     <div id="panelComing" hidden>
       <div class="panel-head">
@@ -535,6 +604,7 @@
   const panelSeg = document.getElementById('panelSeg');
   const panelRgb6 = document.getElementById('panelRgb6');
   const panelWs = document.getElementById('panelWs');
+  const panelVga = document.getElementById('panelVga');
   const panelComing = document.getElementById('panelComing');
   const comingTitle = document.getElementById('comingTitle');
   const comingDesc = document.getElementById('comingDesc');
@@ -544,11 +614,12 @@
     const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b');
+    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b' || key === 'vga');
 
     panelSeg.hidden  = (key !== 'seg');
     panelRgb6.hidden = (key !== 'rgb6');
     panelWs.hidden   = (key !== 'ws2812b');
+    panelVga.hidden  = (key !== 'vga');
     panelComing.hidden = hasOwn;
 
     if(!hasOwn){
