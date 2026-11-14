@@ -406,6 +406,75 @@
       </div>
     </div>
 
+
+    <!-- WS2812B 教材 -->
+    <div id="panelWs" hidden>
+      <div class="panel-head">
+        <h2>WS2812B · 學習動畫</h2>
+        <span class="tag">6 個步驟</span>
+      </div>
+      <p class="panel-desc">
+        單線可定址 LED 燈條（<b>DIN</b>），800kHz 位元時序、每顆 24 bit（GRB）。<br>
+        從「一顆紅色」到「追逐燈」，6 個步驟、每步都有互動動畫。
+      </p>
+      <div class="grid">
+        <a class="card" href="ws2812b/step1.html">
+          <div class="thumb"><img src="img/ws_step1.png" alt="ws step1" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">一顆紅色</div>
+            <div class="desc">24 bit（GRB）+ 800kHz 位元時序</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="ws2812b/step2.html">
+          <div class="thumb"><img src="img/ws_step2.png" alt="ws step2" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">兩顆 LED</div>
+            <div class="desc">48 bit，資料串接轉送</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="ws2812b/step3.html">
+          <div class="thumb"><img src="img/ws_step3.png" alt="ws step3" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">全部同色</div>
+            <div class="desc">12 顆 × 24 = 288 bit</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="ws2812b/step4.html">
+          <div class="thumb"><img src="img/ws_step4.png" alt="ws step4" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 04</div>
+            <div class="title">彩虹 12 色</div>
+            <div class="desc">每顆不同顏色</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="ws2812b/step5.html">
+          <div class="thumb"><img src="img/ws_step5.png" alt="ws step5" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 05</div>
+            <div class="title">彩虹流光</div>
+            <div class="desc">相位移動，顏色沿燈條流動</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="ws2812b/step6.html">
+          <div class="thumb"><img src="img/ws_step6.png" alt="ws step6" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 06</div>
+            <div class="title">追逐燈</div>
+            <div class="desc">一顆光點沿燈條跑</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- 其他外設（尚未有教材） -->
     <div id="panelComing" hidden>
       <div class="panel-head">
@@ -465,6 +534,7 @@
   const btns = document.querySelectorAll('.pmod');
   const panelSeg = document.getElementById('panelSeg');
   const panelRgb6 = document.getElementById('panelRgb6');
+  const panelWs = document.getElementById('panelWs');
   const panelComing = document.getElementById('panelComing');
   const comingTitle = document.getElementById('comingTitle');
   const comingDesc = document.getElementById('comingDesc');
@@ -474,10 +544,11 @@
     const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    const hasOwn = (key === 'seg' || key === 'rgb6');
+    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b');
 
     panelSeg.hidden  = (key !== 'seg');
     panelRgb6.hidden = (key !== 'rgb6');
+    panelWs.hidden   = (key !== 'ws2812b');
     panelComing.hidden = hasOwn;
 
     if(!hasOwn){
