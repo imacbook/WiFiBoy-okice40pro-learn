@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>step1：HDMI 針腳與 DVI 原理</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .chip{fill:#16233c;stroke:#3d5480;stroke-width:2}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .bind{font-size:20px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>step1：HDMI 針腳與 DVI 原理</h1>
+  <div class="sub">認識 9 個腳位，並搞懂 SIL164 如何把並列資料轉成 TMDS。</div>
+  <div class="chapters" id="chapters"><button data-ch="1" class="on">① 針腳</button><button data-ch="2">② DVI/TMDS</button><button data-ch="3">③ 時脈</button><button data-ch="4">④ 結果</button></div>
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      
+      <g id="gCode">
+        <rect x="20" y="60" width="290" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="40" y="88" class="lbl-strong">程式碼</text>
+        <text x="40" y="118" class="mono" style="font-size:11px" fill="#9fd4ff">// 640x480@60</text><text x="40" y="136" class="mono" style="font-size:11px" fill="#9fd4ff">// 2:2:1 色（5-bit）</text><text x="40" y="154" class="mono" style="font-size:11px" fill="#9fd4ff"></text><text x="40" y="172" class="mono" style="font-size:11px" fill="#9fd4ff">assign cl = pclk;   // 時脈</text><text x="40" y="190" class="mono" style="font-size:11px" fill="#9fd4ff">assign de = display; // 可視區</text><text x="40" y="208" class="mono" style="font-size:11px" fill="#9fd4ff"></text><text x="40" y="226" class="mono" style="font-size:11px" fill="#9fd4ff">// HS / VS 同步</text><text x="40" y="244" class="mono" style="font-size:11px" fill="#9fd4ff">// 資料在下降緣產生</text>
+      </g>
+      <g id="gPins">
+        <rect x="320" y="60" width="210" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="425" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">HDMI 9 個腳位</text>
+        <text x="337" y="120" class="mono" style="font-size:11px" fill="#8fa0c4">p1</text><text x="377" y="120" class="mono" style="font-size:12px" fill="#ffd54a">R1</text><text x="437" y="120" class="lbl" style="font-size:11px">紅 高位</text>
+        <text x="337" y="150" class="mono" style="font-size:11px" fill="#8fa0c4">p2</text><text x="377" y="150" class="mono" style="font-size:12px" fill="#ffd54a">R0</text><text x="437" y="150" class="lbl" style="font-size:11px">紅 低位</text>
+        <text x="337" y="180" class="mono" style="font-size:11px" fill="#8fa0c4">p3</text><text x="377" y="180" class="mono" style="font-size:12px" fill="#38e07b">G1</text><text x="437" y="180" class="lbl" style="font-size:11px">綠 高位</text>
+        <text x="337" y="210" class="mono" style="font-size:11px" fill="#8fa0c4">p4</text><text x="377" y="210" class="mono" style="font-size:12px" fill="#38e07b">G0</text><text x="437" y="210" class="lbl" style="font-size:11px">綠 低位</text>
+        <text x="337" y="240" class="mono" style="font-size:11px" fill="#8fa0c4">p5</text><text x="377" y="240" class="mono" style="font-size:12px" fill="#3ad0e6">B1</text><text x="437" y="240" class="lbl" style="font-size:11px">藍（只有 1 bit）</text>
+        <text x="337" y="270" class="mono" style="font-size:11px" fill="#8fa0c4">p6</text><text x="377" y="270" class="mono" style="font-size:12px" fill="#a78bfa">CL</text><text x="437" y="270" class="lbl" style="font-size:11px">像素時脈</text>
+        <text x="337" y="300" class="mono" style="font-size:11px" fill="#8fa0c4">p7</text><text x="377" y="300" class="mono" style="font-size:12px" fill="#a78bfa">DE</text><text x="437" y="300" class="lbl" style="font-size:11px">Data Enable</text>
+        <text x="337" y="330" class="mono" style="font-size:11px" fill="#8fa0c4">p8</text><text x="377" y="330" class="mono" style="font-size:12px" fill="#a78bfa">HS</text><text x="437" y="330" class="lbl" style="font-size:11px">水平同步</text>
+        <text x="337" y="360" class="mono" style="font-size:11px" fill="#8fa0c4">p9</text><text x="377" y="360" class="mono" style="font-size:12px" fill="#a78bfa">VS</text><text x="437" y="360" class="lbl" style="font-size:11px">垂直同步</text>
+        <text x="425" y="392" text-anchor="middle" class="lbl" style="font-size:9px">2:2:1 色 = 5-bit（沒有 B0）</text>
+      </g>
+      <g id="gSil">
+        <rect x="560" y="60" width="520" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="820" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">FPGA → SIL164 → HDMI</text>
+
+        <rect x="580" y="140" width="120" height="80" rx="10" fill="#16233c" stroke="#3d5480"/>
+        <text x="640" y="172" text-anchor="middle" class="lbl" style="font-size:12px">FPGA</text>
+        <text x="640" y="192" text-anchor="middle" class="lbl" style="font-size:9px">並列 R/G/B</text>
+        <text x="640" y="206" text-anchor="middle" class="lbl" style="font-size:9px">+ CL/DE/HS/VS</text>
+
+        <rect x="740" y="140" width="120" height="80" rx="10" fill="#1a2438" stroke="#ffd54a"/>
+        <text x="800" y="172" text-anchor="middle" class="lbl" style="font-size:12px;fill:#ffd54a">SIL164</text>
+        <text x="800" y="192" text-anchor="middle" class="lbl" style="font-size:9px">DVI 發射器</text>
+        <text x="800" y="206" text-anchor="middle" class="lbl" style="font-size:9px">→ TMDS</text>
+
+        <rect x="900" y="150" width="100" height="60" rx="10" fill="#16233c" stroke="#3d5480"/>
+        <text x="950" y="178" text-anchor="middle" class="lbl" style="font-size:12px">HDMI</text>
+        <text x="950" y="196" text-anchor="middle" class="lbl" style="font-size:9px">螢幕</text>
+
+        <path d="M 700 180 L 738 180" stroke="#4a6396" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M 860 180 L 898 180" stroke="#4a6396" stroke-width="2" marker-end="url(#arr)"/>
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#4a6396"/></marker></defs>
+
+        <text x="715" y="172" text-anchor="middle" class="lbl" style="font-size:9px">並列</text>
+        <text x="878" y="172" text-anchor="middle" class="lbl" style="font-size:9px">TMDS</text>
+
+        <text x="820" y="250" text-anchor="middle" class="lbl" style="font-size:11px">FPGA 只送「並列資料 + 時脈」</text>
+        <text x="820" y="272" text-anchor="middle" class="lbl" style="font-size:11px">SIL164 負責轉成高速 TMDS 差動訊號</text>
+        <text x="820" y="300" text-anchor="middle" class="lbl" style="font-size:11px;fill:#38e07b">資料在 pclk 下降緣產生 → 上升緣取樣穩定</text>
+        <rect x="640" y="320" width="360" height="40" rx="8" fill="#0d1526" stroke="#2c3a5c"/>
+        <text x="820" y="345" text-anchor="middle" class="mono" style="font-size:11px" fill="#ffd54a">assign cl = pclk;  assign de = display;</text>
+      </g>
+      <rect id="hlCode" x="20" y="60" width="290" height="340" rx="14" class="hl-box"/>
+      <rect id="hlPins" x="320" y="60" width="210" height="340" rx="14" class="hl-box"/>
+      <rect id="hlSil"  x="560" y="60" width="520" height="340" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+<a href="../index.html" class="back-home">← 返回主頁</a>
+<script>
+(function(){
+  const CH = 4;
+  let cur = 1;
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  const MODE = 'diagram';
+
+  let h = 0, v = 0;
+
+  function tick(){
+    h = (h + 1) % 800;
+    if(h === 0) v = (v + 1) % 525;
+    const de = (h < 640 && v < 480) ? 1 : 0;
+    const hs = (h >= 656 && h < 752) ? 0 : 1;
+    const vs = (v >= 490 && v < 492) ? 0 : 1;
+    const eh = $('#hVal'), ev = $('#vVal'), es = $('#hsVal'), et = $('#stateTxt');
+    if(eh) eh.textContent = h;
+    if(ev) ev.textContent = v;
+    if(es) es.textContent = de + ' / ' + hs + ' / ' + vs;
+    if(et) et.textContent = de ? '可視區：送像素' : '消隱區：不送';
+  }
+
+  let bx = 820, by = 120, dx = 2, dy = 1;
+  function boxTick(){
+    const el = $('#box');
+    if(!el) return;
+    bx += dx; by += dy;
+    if(bx < 800 || bx > 1020) dx = -dx;
+    if(by < 102 || by > 257) dy = -dy;
+    el.setAttribute('x', bx.toFixed(1));
+    el.setAttribute('y', by.toFixed(1));
+  }
+
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    $$('#chapters button').forEach(b=>b.classList.toggle('on', +b.dataset.ch===cur));
+    $$('.hl-box').forEach(e=>e.classList.remove('on'));
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2){ const e=$('#hlPins'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
+    if(cur>=3){ const e=$('#hlSil'); if(e) e.classList.add('on'); const f=$('#hlFpga'); if(f) f.classList.add('on'); }
+    if(cur>=4){ const e=$('#hlSil'); if(e) e.classList.add('on'); const g=$('#hlScreen'); if(g) g.classList.add('on'); }
+    $('#narr').innerHTML = NARR[cur - 1];
+  }
+
+  const NARR = ["<b>① 針腳</b>：HDMI 用 9 個腳位。5 個顏色（R1/R0、G1/G0、B1）、<b>CL</b>（像素時脈）、<b>DE</b>（Data Enable）、HS、VS。", "<b>② DVI/TMDS</b>：FPGA 只送「並列 R/G/B + CL + DE + HS/VS」，<b>SIL164</b> 負責轉成高速的 <b>TMDS</b> 差動訊號。", "<b>③ 時脈</b>：<code>cl = pclk</code> 是輸出給 SIL164 的像素時脈；資料在<b>下降緣</b>產生，讓上升緣取樣時已穩定。", "<b>④ 結果</b>：螢幕出現全黑畫面（有訊號）。"];
+
+  $$('#chapters button').forEach(b=>b.addEventListener('click', ()=>setChapter(+b.dataset.ch)));
+  $('#prev').addEventListener('click', ()=>setChapter(cur-1));
+  $('#next').addEventListener('click', ()=>setChapter(cur+1));
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+
+  if(MODE === 'box') setInterval(boxTick, 30);
+  else if(MODE === 'diagram') { /* 靜態圖 */ }
+  else setInterval(tick, 12);
+})();
+</script>
+</body>
+</html>

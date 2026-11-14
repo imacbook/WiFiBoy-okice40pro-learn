@@ -544,6 +544,75 @@
       </div>
     </div>
 
+
+    <!-- HDMI 教材 -->
+    <div id="panelHdmi" hidden>
+      <div class="panel-head">
+        <h2>HDMI · 學習動畫</h2>
+        <span class="tag">6 個步驟</span>
+      </div>
+      <p class="panel-desc">
+        透過 <b>SIL164</b>（DVI 發射器）輸出，640×480@60、<b>2:2:1 色</b>（5-bit）。<br>
+        從「針腳與 DVI 原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
+      </p>
+      <div class="grid">
+        <a class="card" href="hdmi/step1.html">
+          <div class="thumb"><img src="img/hdmi_step1.png" alt="hdmi step1" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">HDMI 針腳與 DVI 原理</div>
+            <div class="desc">9 個腳位 + SIL164/TMDS 原理</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="hdmi/step2.html">
+          <div class="thumb"><img src="img/hdmi_step2.png" alt="hdmi step2" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">DE（Data Enable）</div>
+            <div class="desc">可視區訊號</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="hdmi/step3.html">
+          <div class="thumb"><img src="img/hdmi_step3.png" alt="hdmi step3" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">2:2:1 色深</div>
+            <div class="desc">R/G 各 2 bit、B 只有 1 bit</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="hdmi/step4.html">
+          <div class="thumb"><img src="img/hdmi_step4.png" alt="hdmi step4" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 04</div>
+            <div class="title">2:2:1 彩色漸層</div>
+            <div class="desc">5-bit 色 → 32 色</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="hdmi/step5.html">
+          <div class="thumb"><img src="img/hdmi_step5.png" alt="hdmi step5" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 05</div>
+            <div class="title">漸層畫面</div>
+            <div class="desc">與 VGA 相同時序、不同色深</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="hdmi/step6.html">
+          <div class="thumb"><img src="img/hdmi_step6.png" alt="hdmi step6" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 06</div>
+            <div class="title">移動方塊</div>
+            <div class="desc">每張畫面更新 → 60Hz 動畫</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- 其他外設（尚未有教材） -->
     <div id="panelComing" hidden>
       <div class="panel-head">
@@ -605,6 +674,7 @@
   const panelRgb6 = document.getElementById('panelRgb6');
   const panelWs = document.getElementById('panelWs');
   const panelVga = document.getElementById('panelVga');
+  const panelHdmi = document.getElementById('panelHdmi');
   const panelComing = document.getElementById('panelComing');
   const comingTitle = document.getElementById('comingTitle');
   const comingDesc = document.getElementById('comingDesc');
@@ -614,12 +684,13 @@
     const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b' || key === 'vga');
+    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b' || key === 'vga' || key === 'hdmi');
 
     panelSeg.hidden  = (key !== 'seg');
     panelRgb6.hidden = (key !== 'rgb6');
     panelWs.hidden   = (key !== 'ws2812b');
     panelVga.hidden  = (key !== 'vga');
+    panelHdmi.hidden = (key !== 'hdmi');
     panelComing.hidden = hasOwn;
 
     if(!hasOwn){
