@@ -1,0 +1,11 @@
+# 診斷用：p1~p9 直接對應 FPGA 腳
+set_io -nowarn p1 42
+set_io -nowarn p2 43
+set_io -nowarn p3 44
+set_io -nowarn p4 45
+set_io -nowarn p5 46
+set_io -nowarn p6 47
+set_io -nowarn p7 48
+set_io -nowarn p8 2
+set_io -nowarn p9 3
+set_io -nowarn clk12 35

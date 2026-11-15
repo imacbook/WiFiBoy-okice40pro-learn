@@ -1,0 +1,3 @@
+# WiFiBoy WS2812B PMOD 腳位（修正版：依「標示順序反轉」規律，DIN = p1）
+set_io -nowarn din 42     # DIN = p1
+set_io -nowarn clk12 35

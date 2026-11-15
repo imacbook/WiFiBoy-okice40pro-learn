@@ -1,0 +1,11 @@
+# WiFiBoy HDMI PMOD 腳位（SIL164；依「標示順序反轉」規律，p1~p9 = R1,R0,G1,G0,B1,CL,DE,HS,VS）
+set_io -nowarn r1  42    # R1 = p1
+set_io -nowarn r0  43    # R0 = p2
+set_io -nowarn g1  44    # G1 = p3
+set_io -nowarn g0  45    # G0 = p4
+set_io -nowarn b1  46    # B1 = p5
+set_io -nowarn cl  47    # CL = p6
+set_io -nowarn de  48    # DE = p7
+set_io -nowarn hs  2     # HS = p8
+set_io -nowarn vs  3     # VS = p9
+set_io -nowarn clk12 35

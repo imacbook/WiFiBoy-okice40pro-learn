@@ -1,0 +1,11 @@
+# WiFiBoy RGB6 LED PMOD 腳位（依「標示順序反轉」規律推得：p1~p9 = R,G,B,D0..D5）
+set_io -nowarn r 42     # R = p1
+set_io -nowarn g 43     # G = p2
+set_io -nowarn b 44     # B = p3
+set_io -nowarn d0 45    # D0 = p4
+set_io -nowarn d1 46    # D1 = p5
+set_io -nowarn d2 47    # D2 = p6
+set_io -nowarn d3 48    # D3 = p7
+set_io -nowarn d4 2     # D4 = p8
+set_io -nowarn d5 3     # D5 = p9
+set_io -nowarn clk12 35

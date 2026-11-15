@@ -1,0 +1,11 @@
+# WiFiBoy 7-segment PMOD 腳位（最終正確版，依 2026-11-05 diag9 逐腳掃描實測）
+set_io -nowarn seg_a 42    # A = FPGA 42（p1）
+set_io -nowarn seg_b 43    # B = FPGA 43（p2）
+set_io -nowarn seg_c 44    # C = FPGA 44（p3）
+set_io -nowarn seg_d 47    # D = FPGA 47（p6）
+set_io -nowarn seg_e 45    # E = FPGA 45（p4）
+set_io -nowarn seg_f 3     # F = FPGA 3（p9）
+set_io -nowarn seg_g 48    # G = FPGA 48（p7）
+set_io -nowarn dig1 2      # 位數 1（顯示個位）= FPGA 2（p8，右）
+set_io -nowarn dig2 46     # 位數 2（顯示十位）= FPGA 46（p5，左）
+set_io -nowarn clk12 35
