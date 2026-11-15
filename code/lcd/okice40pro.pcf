@@ -1,0 +1,13 @@
+# WiFiBoy 選單（LCD + 按鍵 + LED）
+set_io -nowarn lcd_sclk 23
+set_io -nowarn lcd_mosi 25
+set_io -nowarn lcd_cs   21
+set_io -nowarn lcd_dc   26
+set_io -nowarn lcd_rst  27
+set_io -nowarn lcd_bl   39
+set_io -nowarn key_u    38
+set_io -nowarn key_d    34
+set_io -nowarn key_a    19
+set_io -nowarn led_b    40
+set_io -nowarn led_r    41
+set_io -nowarn clk12    35

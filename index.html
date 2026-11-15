@@ -60,9 +60,7 @@
   .board-spec b{color:var(--text)}
 
   /* ---------- PMOD 分頁 ---------- */
-  .pmods{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px}
-  @media(max-width:900px){.pmods{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:560px){.pmods{grid-template-columns:repeat(2,1fr)}}
+  .pmods{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:32px}
   .pmod{
     position:relative;
     background:#0d1526;border:1px solid var(--line);border-radius:12px;
@@ -273,6 +271,15 @@
         </svg>
         <div class="pmod-name">WS2812B</div>
         <div class="pmod-desc">可定址 LED 燈條（DIN）</div>
+      </button>
+
+      <button class="pmod" data-pmod="projects" style="--pmod-accent:#dce6ff">
+        <svg viewBox="0 0 48 48" fill="none" stroke="#dce6ff" stroke-width="2.4">
+          <path d="M5 15 h13 l4 5 h21 v19 a3 3 0 0 1 -3 3 h-32 a3 3 0 0 1 -3 -3 z"/>
+          <path d="M5 15 v-3 a3 3 0 0 1 3 -3 h9 l3 4" stroke-linejoin="round"/>
+        </svg>
+        <div class="pmod-name">專案</div>
+        <div class="pmod-desc">閃燈 · LCD · 俄羅斯方塊</div>
       </button>
     </div>
 
@@ -706,6 +713,48 @@
       </div>
     </div>
 
+
+    <!-- 專案教材 -->
+    <div id="panelProjects" class="panel" style="--accent2:#dce6ff" hidden>
+      <div class="panel-head">
+        <h2>專案 · 學習動畫</h2>
+        <span class="tag">3 個專案</span>
+      </div>
+      <p class="panel-desc">
+        把前面學到的 <b>Verilog、除頻、testbench、狀態機</b> 組合起來，做成三個小專案。<br>
+        從最簡單的「閃燈」到完整的「俄羅斯方塊」。
+      </p>
+      <div class="grid">
+        <a class="card" href="projects/blink.html">
+          <div class="thumb"><img src="img/proj_blink.png" alt="閃燈（blink）" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 01</div>
+            <div class="title">閃燈（blink）</div>
+            <div class="desc">Verilog 計數器 + testbench 波形</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="projects/lcd.html">
+          <div class="thumb"><img src="img/proj_lcd.png" alt="LCD 顯示（ST7735）" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 02</div>
+            <div class="title">LCD 顯示（ST7735）</div>
+            <div class="desc">1.8 吋 TFT 選單 + 按鍵去彈跳</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+        <a class="card" href="projects/tetris.html">
+          <div class="thumb"><img src="img/proj_tetris.png" alt="俄羅斯方塊（Tetris）" loading="lazy"></div>
+          <div class="body">
+            <div class="num">STEP 03</div>
+            <div class="title">俄羅斯方塊（Tetris）</div>
+            <div class="desc">遊戲邏輯 + 畫面 + HUD + 音效</div>
+            <div class="go">開始 →</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
     <!-- 其他外設（尚未有教材） -->
     <div id="panelComing" hidden>
       <div class="panel-head">
@@ -762,6 +811,11 @@
       name: 'WS2812B',
       title: 'WS2812B · 學習動畫',
       desc: '單線可定址 LED 燈條（DIN），教你精準的位元時序與串接。'
+    },
+    projects: {
+      name: '專案',
+      title: '專案 · 學習動畫',
+      desc: '閃燈、LCD、俄羅斯方塊'
     }
   };
 
@@ -771,6 +825,7 @@
   const panelWs = document.getElementById('panelWs');
   const panelVga = document.getElementById('panelVga');
   const panelHdmi = document.getElementById('panelHdmi');
+  const panelProjects = document.getElementById('panelProjects');
   const panelComing = document.getElementById('panelComing');
   const comingTitle = document.getElementById('comingTitle');
   const comingDesc = document.getElementById('comingDesc');
@@ -780,13 +835,14 @@
     const info = INFO[key] || INFO.seg;
     btns.forEach(b => b.classList.toggle('active', b.dataset.pmod === key));
 
-    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b' || key === 'vga' || key === 'hdmi');
+    const hasOwn = (key === 'seg' || key === 'rgb6' || key === 'ws2812b' || key === 'vga' || key === 'hdmi' || key === 'projects');
 
     panelSeg.hidden  = (key !== 'seg');
     panelRgb6.hidden = (key !== 'rgb6');
     panelWs.hidden   = (key !== 'ws2812b');
     panelVga.hidden  = (key !== 'vga');
     panelHdmi.hidden = (key !== 'hdmi');
+    panelProjects.hidden = (key !== 'projects');
     panelComing.hidden = hasOwn;
 
     if(!hasOwn){

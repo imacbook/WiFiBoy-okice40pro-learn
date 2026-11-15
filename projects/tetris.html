@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>俄羅斯方塊（Tetris）</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .wave-card{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0e1628}
+  .wave-title{font-size:12px;color:var(--dim);margin-bottom:10px}
+  .wave-card img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line);
+    background:#0b1220;margin-bottom:10px}
+  .wave-card img:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>俄羅斯方塊（Tetris）</h1>
+  <div class="sub">用 FPGA 做完整的俄羅斯方塊：遊戲邏輯、畫面渲染、HUD、音效。</div>
+  <div class="chapters" id="chapters"><button data-ch="1" class="on">① 目的</button><button data-ch="2">② 架構</button><button data-ch="3">③ 遊戲</button><button data-ch="4">④ 結果</button></div>
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      <g id="gCode"><rect x="20" y="60" width="330" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/><text x="40" y="88" class="lbl-strong">程式碼</text><text x="40" y="118" class="mono" style="font-size:10.5px" fill="#9fd4ff">// tetris.v（頂層）</text><text x="40" y="135" class="mono" style="font-size:10.5px" fill="#9fd4ff"></text><text x="40" y="152" class="mono" style="font-size:10.5px" fill="#9fd4ff">game     game_i(...);</text><text x="40" y="169" class="mono" style="font-size:10.5px" fill="#9fd4ff">board_ram ram_i(...);</text><text x="40" y="186" class="mono" style="font-size:10.5px" fill="#9fd4ff">board_render render_i(...);</text><text x="40" y="203" class="mono" style="font-size:10.5px" fill="#9fd4ff">hud      hud_i(...);</text><text x="40" y="220" class="mono" style="font-size:10.5px" fill="#9fd4ff">sound    sound_i(...);</text><text x="40" y="237" class="mono" style="font-size:10.5px" fill="#9fd4ff">st7735   lcd_i(...);</text><text x="40" y="254" class="mono" style="font-size:10.5px" fill="#9fd4ff">hdmi     hdmi_i(...);</text><text x="40" y="271" class="mono" style="font-size:10.5px" fill="#9fd4ff"></text><text x="40" y="288" class="mono" style="font-size:10.5px" fill="#9fd4ff">// game.v 負責：</text><text x="40" y="305" class="mono" style="font-size:10.5px" fill="#9fd4ff">//  移動、旋轉、消行、計分</text></g>
+      <g id="gArch"><rect x="380" y="60" width="300" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="530" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">模組架構</text>
+        <text x="400" y="125" class="mono" style="font-size:10.5px" fill="#9fd4ff">tetris.v</text><text x="490" y="125" class="lbl" style="font-size:10px">頂層</text>
+        <text x="400" y="155" class="mono" style="font-size:10.5px" fill="#ffd54a">game.v</text><text x="490" y="155" class="lbl" style="font-size:10px">遊戲邏輯（14KB）</text>
+        <text x="400" y="185" class="mono" style="font-size:10.5px" fill="#38e07b">board_ram.v</text><text x="490" y="185" class="lbl" style="font-size:10px">盤面記憶體</text>
+        <text x="400" y="215" class="mono" style="font-size:10.5px" fill="#38e07b">board_render.v</text><text x="490" y="215" class="lbl" style="font-size:10px">畫面渲染</text>
+        <text x="400" y="245" class="mono" style="font-size:10.5px" fill="#a78bfa">hud.v</text><text x="490" y="245" class="lbl" style="font-size:10px">分數 / 下一塊</text>
+        <text x="400" y="275" class="mono" style="font-size:10.5px" fill="#a78bfa">sound.v</text><text x="490" y="275" class="lbl" style="font-size:10px">音效（PWM）</text>
+        <text x="400" y="305" class="mono" style="font-size:10.5px" fill="#3ad0e6">st7735.v / hdmi.v</text><text x="490" y="305" class="lbl" style="font-size:10px">LCD 或 HDMI 輸出</text>
+        <text x="530" y="350" text-anchor="middle" class="lbl" style="font-size:10px">共 12 個模組 · 172KB</text></g>
+      <g id="gBoard"><rect x="710" y="60" width="370" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="895" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">模擬遊戲畫面</text>
+        <rect x="790" y="105" width="210" height="255" rx="6" fill="#0a0f14" stroke="#3d5480"/>
+        <g id="boardCells"></g></g>
+      <rect id="hlCode" x="20" y="60" width="330" height="340" rx="14" class="hl-box"/>
+      <rect id="hlArch" x="380" y="60" width="300" height="340" rx="14" class="hl-box"/>
+      <rect id="hlBoard" x="710" y="60" width="370" height="340" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+  
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+<a href="../index.html?pmod=projects" class="back-home">← 返回主頁</a>
+<script>
+(function(){
+  var CH = 4; var cur = 1;
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return document.querySelectorAll(s); };
+  var NARR = ["<b>① 目的</b>：把前面學到的東西組合起來——做一個能玩的俄羅斯方塊。", "<b>② 架構</b>：<code>game.v</code> 管邏輯、<code>board_ram.v</code> 存盤面、<code>board_render.v</code> 畫畫面、<code>hud.v</code> 畫分數、<code>sound.v</code> 出聲音。", "<b>③ 遊戲</b>：方塊會自動下落、左右移動、旋轉、消行、計分。", "<b>④ 結果</b>：可以輸出到 LCD 或 HDMI 螢幕。"];
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    $$('#chapters button').forEach(function(b){ b.classList.toggle('on', +b.dataset.ch===cur); });
+    $$('.hl-box').forEach(function(e){ e.classList.remove('on'); });
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) { var ids2=['#hlLed','#hlLcd','#hlArch']; ids2.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    if(cur>=3) { var ids3=['#hlWave','#hlInfo','#hlBoard']; ids3.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    if(cur>=4) { var ids4=['#hlLed','#hlLcd','#hlArch','#hlWave','#hlInfo','#hlBoard']; ids4.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    $('#narr').innerHTML = NARR[cur-1];
+  }
+  $$('#chapters button').forEach(function(b){ b.addEventListener('click', function(){ setChapter(+b.dataset.ch); }); });
+  $('#prev').addEventListener('click', function(){ setChapter(cur-1); });
+  $('#next').addEventListener('click', function(){ setChapter(cur+1); });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+  var params = new URLSearchParams(location.search);
+  var start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+  (function(){
+    var cols=10, rows=15, S=14, X=800, Y=115;
+    var colors=['#3ad0e6','#ffd54a','#a78bfa','#38e07b','#ff7a7a'];
+    var g=document.getElementById('boardCells');
+    if(!g) return;
+    var fixed=[]; var x, y;
+    for(x=0;x<8;x++) fixed.push([x,rows-1,colors[x%5]]);
+    for(x=2;x<7;x++) fixed.push([x,rows-2,colors[(x+2)%5]]);
+    function draw(px,py){
+      var h='';
+      for(y=0;y<rows;y++) for(x=0;x<cols;x++){
+        var c=null, k;
+        for(k=0;k<fixed.length;k++) if(fixed[k][0]===x&&fixed[k][1]===y) c=fixed[k][2];
+        if(x===px&&y===py) c='#ffd54a';
+        if(c) h+='<rect x="'+(X+x*S)+'" y="'+(Y+y*S)+'" width="'+(S-1)+'" height="'+(S-1)+'" fill="'+c+'" opacity="0.9"/>';
+      }
+      g.innerHTML=h;
+    }
+    var px=4, py=0;
+    setInterval(function(){ py++; if(py>=rows-3){ py=0; px=Math.floor(Math.random()*8); } draw(px,py); }, 350);
+    draw(px,py);
+  })();
+})();
+</script>
+</body>
+</html>

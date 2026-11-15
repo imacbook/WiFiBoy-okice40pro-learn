@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LCD 顯示（ST7735）</title>
+<style>
+  :root{--bg:#0b1020;--line:#263352;--text:#dce6ff;--dim:#8fa0c4;--accent:#ffd54a;--green:#38e07b;--cyan:#3ad0e6}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;background:radial-gradient(1200px 700px at 50% -10%,#16213d 0%,var(--bg) 55%);
+       color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 40px}
+  h1{font-size:19px;margin:0 0 4px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.6}
+  .chapters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .chapters button{border:1px solid var(--line);background:#121c33;color:var(--text);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.2s;font-family:inherit}
+  .chapters button:hover{border-color:#3a4a72;background:#16223d}
+  .chapters button.on{background:linear-gradient(180deg,#2a3c66,#1d2c4d);border-color:#4a6396;
+    box-shadow:0 0 0 1px #4a639655,0 6px 18px #0a1228}
+  .scene{background:linear-gradient(180deg,#0d1526,#0a101d);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;box-shadow:0 20px 60px #05080f, inset 0 1px 0 #ffffff08}
+  svg{display:block;width:100%;height:auto}
+  .narration{margin-top:12px;background:#0e1628;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;min-height:74px;font-size:14px;line-height:1.75}
+  .narration b{color:var(--accent)}
+  .narration code{background:#1a2540;padding:1px 6px;border-radius:5px;color:#ffd88a;font-size:13px}
+  .hint{color:var(--dim);font-size:12px;margin-top:10px}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{background:#16223d;border:1px solid var(--line);color:var(--text);
+    padding:9px 18px;border-radius:10px;cursor:pointer;font-size:13px;font-family:inherit}
+  .nav .spacer{flex:1}
+  .back-home{position:fixed;top:14px;right:18px;z-index:9999;display:inline-flex;align-items:center;gap:6px;
+    background:#16223d;color:#dce6ff;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13px;
+    border:1px solid #263352;font-family:inherit;box-shadow:0 6px 20px #05080f;transition:.2s}
+  .back-home:hover{background:#1e2c4d;border-color:#4a6396;color:#fff}
+  .lbl{font-size:13px;fill:var(--dim)}
+  .lbl-strong{font-size:15px;fill:var(--text);font-weight:600}
+  .mono{font-family:"SF Mono",Menlo,Consolas,monospace}
+  .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
+  .hl-box.on{opacity:1}
+  .wave-card{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0e1628}
+  .wave-title{font-size:12px;color:var(--dim);margin-bottom:10px}
+  .wave-card img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line);
+    background:#0b1220;margin-bottom:10px}
+  .wave-card img:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LCD 顯示（ST7735）</h1>
+  <div class="sub">驅動 1.8 吋 ST7735 TFT LCD，用按鍵選擇選單。</div>
+  <div class="chapters" id="chapters"><button data-ch="1" class="on">① 目的</button><button data-ch="2">② 驅動原理</button><button data-ch="3">③ 選單</button><button data-ch="4">④ 結果</button></div>
+  <div class="scene">
+    <svg id="scene" viewBox="0 0 1100 470" xmlns="http://www.w3.org/2000/svg">
+      <g id="gCode"><rect x="20" y="60" width="330" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/><text x="40" y="88" class="lbl-strong">程式碼</text><text x="40" y="118" class="mono" style="font-size:10.5px" fill="#9fd4ff">// menu.v（主控）</text><text x="40" y="135" class="mono" style="font-size:10.5px" fill="#9fd4ff"></text><text x="40" y="152" class="mono" style="font-size:10.5px" fill="#9fd4ff">st7735 lcd(</text><text x="40" y="169" class="mono" style="font-size:10.5px" fill="#9fd4ff">  .clk(clk), .rst(rst),</text><text x="40" y="186" class="mono" style="font-size:10.5px" fill="#9fd4ff">  .cs(cs), .dc(dc), .sclk(sclk),</text><text x="40" y="203" class="mono" style="font-size:10.5px" fill="#9fd4ff">  .mosi(mosi), .bl(bl)</text><text x="40" y="220" class="mono" style="font-size:10.5px" fill="#9fd4ff">);</text><text x="40" y="237" class="mono" style="font-size:10.5px" fill="#9fd4ff"></text><text x="40" y="254" class="mono" style="font-size:10.5px" fill="#9fd4ff">debounce key(.clk(clk), .btn(btn),</text><text x="40" y="271" class="mono" style="font-size:10.5px" fill="#9fd4ff">             .out(key_pulse));</text><text x="40" y="288" class="mono" style="font-size:10.5px" fill="#9fd4ff"></text><text x="40" y="305" class="mono" style="font-size:10.5px" fill="#9fd4ff">always @(posedge clk)</text><text x="40" y="322" class="mono" style="font-size:10.5px" fill="#9fd4ff">  if (key_pulse) sel <= sel + 1;</text></g>
+      <g id="gLcd"><rect x="380" y="60" width="300" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="530" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">模擬 LCD（128×160）</text>
+        <rect x="440" y="105" width="180" height="225" rx="8" fill="#0a0f14" stroke="#3d5480" stroke-width="2"/>
+        <rect x="450" y="115" width="160" height="205" rx="4" fill="#101a26"/>
+        <text x="530" y="140" text-anchor="middle" class="lbl" style="font-size:10px;fill:#3ad0e6">WiFiBoy OK-iCE40Pro</text>
+        <text id="mi0" x="465" y="175" class="lbl" style="font-size:11px;fill:#ffd54a">&gt; 7 段顯示器</text>
+        <text id="mi1" x="465" y="200" class="lbl" style="font-size:11px">  RGB6 LED</text>
+        <text id="mi2" x="465" y="225" class="lbl" style="font-size:11px">  WS2812B</text>
+        <text id="mi3" x="465" y="250" class="lbl" style="font-size:11px">  VGA</text>
+        <text id="mi4" x="465" y="275" class="lbl" style="font-size:11px">  HDMI</text>
+        <text x="530" y="360" text-anchor="middle" class="lbl" style="font-size:10px">SPI 介面 · 128×160 · 16-bit 色</text></g>
+      <g id="gInfo"><rect x="710" y="60" width="370" height="340" rx="14" fill="#0c1424" stroke="#2c3a5c" stroke-width="1.5"/>
+        <text x="895" y="88" text-anchor="middle" class="lbl-strong" style="font-size:13px">模組關係</text>
+        <text x="740" y="130" class="mono" style="font-size:11px" fill="#9fd4ff">menu.v</text><text x="830" y="130" class="lbl" style="font-size:11px">主控 / 選單狀態機</text>
+        <text x="740" y="165" class="mono" style="font-size:11px" fill="#38e07b">st7735.v</text><text x="830" y="165" class="lbl" style="font-size:11px">LCD 驅動（SPI）</text>
+        <text x="740" y="200" class="mono" style="font-size:11px" fill="#a78bfa">debounce.v</text><text x="830" y="200" class="lbl" style="font-size:11px">按鍵去彈跳</text>
+        <text x="740" y="235" class="mono" style="font-size:11px" fill="#ffd54a">tb_st7735.v</text><text x="830" y="235" class="lbl" style="font-size:11px">模擬驗證</text>
+        <text x="895" y="290" text-anchor="middle" class="lbl" style="font-size:11px">st7735.v 有 21KB，負責</text>
+        <text x="895" y="312" text-anchor="middle" class="lbl" style="font-size:11px">初始化序列 + 畫點/畫字</text>
+        <text x="895" y="345" text-anchor="middle" class="lbl" style="font-size:11px;fill:#38e07b">按鍵可切換選單</text></g>
+      <rect id="hlCode" x="20" y="60" width="330" height="340" rx="14" class="hl-box"/>
+      <rect id="hlLcd" x="380" y="60" width="300" height="340" rx="14" class="hl-box"/>
+      <rect id="hlInfo" x="710" y="60" width="370" height="340" rx="14" class="hl-box"/>
+    </svg>
+  </div>
+  
+  <div class="narration" id="narr"></div>
+  <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  <div class="nav">
+    <button id="prev">← 上一章</button>
+    <div class="spacer"></div>
+    <button id="next">下一章 →</button>
+  </div>
+</div>
+<a href="../index.html?pmod=projects" class="back-home">← 返回主頁</a>
+<script>
+(function(){
+  var CH = 4; var cur = 1;
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return document.querySelectorAll(s); };
+  var NARR = ["<b>① 目的</b>：驅動 1.8 吋 ST7735 TFT LCD，做一個可以用按鍵選擇的選單。", "<b>② 驅動原理</b>：<code>st7735.v</code> 用 SPI 送初始化序列，再送像素資料；<code>debounce.v</code> 處理按鍵彈跳。", "<b>③ 選單</b>：<code>menu.v</code> 用狀態機記錄目前選到哪一項，按鍵按下就換下一項。", "<b>④ 結果</b>：畫面上會顯示選單，按鍵可以切換高亮項目。"];
+  function setChapter(n){
+    cur = Math.max(1, Math.min(CH, n));
+    $$('#chapters button').forEach(function(b){ b.classList.toggle('on', +b.dataset.ch===cur); });
+    $$('.hl-box').forEach(function(e){ e.classList.remove('on'); });
+    if(cur>=1) $('#hlCode').classList.add('on');
+    if(cur>=2) { var ids2=['#hlLed','#hlLcd','#hlArch']; ids2.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    if(cur>=3) { var ids3=['#hlWave','#hlInfo','#hlBoard']; ids3.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    if(cur>=4) { var ids4=['#hlLed','#hlLcd','#hlArch','#hlWave','#hlInfo','#hlBoard']; ids4.forEach(function(id){ var e=$(id); if(e) e.classList.add('on'); }); }
+    $('#narr').innerHTML = NARR[cur-1];
+  }
+  $$('#chapters button').forEach(function(b){ b.addEventListener('click', function(){ setChapter(+b.dataset.ch); }); });
+  $('#prev').addEventListener('click', function(){ setChapter(cur-1); });
+  $('#next').addEventListener('click', function(){ setChapter(cur+1); });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowLeft') setChapter(cur-1);
+    if(e.key==='ArrowRight') setChapter(cur+1);
+  });
+  var params = new URLSearchParams(location.search);
+  var start = parseInt(params.get('ch')||'1',10);
+  setChapter(isNaN(start)?1:start);
+  var sel = 0; var N = 5; var NAMES = ['7 段顯示器','RGB6 LED','WS2812B','VGA','HDMI'];
+  setInterval(function(){
+    sel = (sel+1) % N;
+    for(var i=0;i<N;i++){
+      var e = document.getElementById('mi'+i);
+      if(!e) continue;
+      e.textContent = (i===sel ? '> ' : '  ') + NAMES[i];
+      e.setAttribute('style','font-size:11px;fill:'+(i===sel?'#ffd54a':'#8fa0c4'));
+    }
+  }, 1200);
+})();
+</script>
+</body>
+</html>

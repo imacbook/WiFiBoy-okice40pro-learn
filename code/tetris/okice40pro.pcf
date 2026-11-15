@@ -1,0 +1,31 @@
+# WiFiBoy 俄羅斯方塊（LCD 選單 + VGA/HDMI 輸出）
+# LCD
+set_io -nowarn lcd_sclk 23
+set_io -nowarn lcd_mosi 25
+set_io -nowarn lcd_cs   21
+set_io -nowarn lcd_dc   26
+set_io -nowarn lcd_rst  27
+set_io -nowarn lcd_bl   39
+# 按鍵
+set_io -nowarn key_u    38
+set_io -nowarn key_d    34
+set_io -nowarn key_l    32
+set_io -nowarn key_r    36
+set_io -nowarn key_a    19
+set_io -nowarn key_b    18
+set_io -nowarn key_m    20
+# LED
+set_io -nowarn led_b    40
+set_io -nowarn led_r    41
+# PMOD 共享腳位（VGA / HDMI 二選一）
+set_io -nowarn r1  42   # R1（兩者同）
+set_io -nowarn r0  43   # R0（兩者同）
+set_io -nowarn g1  44   # G1（兩者同）
+set_io -nowarn g0  45   # G0（兩者同）
+set_io -nowarn b1  46   # B1（兩者同）
+set_io -nowarn p6  47   # VGA:B0 / HDMI:CL
+set_io -nowarn p7  48   # VGA:VS / HDMI:DE
+set_io -nowarn hs  2    # HS（兩者同）
+set_io -nowarn p9  3    # VGA:Snd / HDMI:VS
+set_io -nowarn clk12 35
+set_io -nowarn speaker 10
