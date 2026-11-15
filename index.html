@@ -94,6 +94,14 @@
     padding:2px 9px;border-radius:999px;
   }
   .panel-desc{color:var(--dim);font-size:13.5px;line-height:1.8;margin:0 0 18px}
+  .panel{border:1px solid var(--line);border-top:4px solid var(--accent2);
+    border-radius:14px;padding:18px 18px 22px;margin-bottom:14px;background:#0b1220}
+  .panel .panel-head h2{color:var(--accent2)}
+  .photos-title{font-size:12px;color:var(--dim);margin:0 0 8px;letter-spacing:.4px}
+  .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 20px}
+  .photos figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0d1526}
+  .photos img{width:100%;height:140px;object-fit:cover;display:block}
+  .photos figcaption{font-size:10.5px;color:var(--dim);padding:6px 8px;text-align:center}
   .panel-desc b{color:var(--accent)}
 
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -234,7 +242,7 @@
     </div>
 
     <!-- 7 段顯示器教材 -->
-    <div id="panelSeg">
+    <div id="panelSeg" class="panel" style="--accent2:#ffd54a">
       <div class="panel-head">
         <h2>7 段顯示器 · 學習動畫</h2>
         <span class="tag">9 個步驟</span>
@@ -243,6 +251,10 @@
         從「點亮一段」到「<b>00~99</b>」自動計數，9 個步驟、每步都有互動動畫。<br>
         建議照順序做，每步都「看到結果」再往下。
       </p>
+
+      
+      <div class="photos-title">實物照片</div>
+      <div class="photos"><figure><img src="img/pmod/7segment-front.jpg" alt="正面（5621AS 兩位數）" loading="lazy"><figcaption>正面（5621AS 兩位數）</figcaption></figure><figure><img src="img/pmod/7segment-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
 
       <div class="grid">
         <a class="card" href="step1.html">
@@ -339,7 +351,7 @@
 
 
     <!-- RGB6 LED 教材 -->
-    <div id="panelRgb6" hidden>
+    <div id="panelRgb6" class="panel" style="--accent2:#ff7a7a" hidden>
       <div class="panel-head">
         <h2>RGB6 LED · 學習動畫</h2>
         <span class="tag">6 個步驟</span>
@@ -348,6 +360,10 @@
         3 條色線（R/G/B）＋ 6 條選線（D0~D5）的 <b>RGB 矩陣</b>。<br>
         從「點亮一顆」到「呼吸燈 PWM」，6 個步驟、每步都有互動動畫。
       </p>
+      
+      <div class="photos-title">實物照片</div>
+      <div class="photos"><figure><img src="img/pmod/rgb6-front.jpg" alt="正面（6 顆 RGB LED）" loading="lazy"><figcaption>正面（6 顆 RGB LED）</figcaption></figure><figure><img src="img/pmod/rgb6-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+
       <div class="grid">
         <a class="card" href="rgb6/step1.html">
           <div class="thumb"><img src="img/rgb6_step1.png" alt="rgb6 step1" loading="lazy"></div>
@@ -408,7 +424,7 @@
 
 
     <!-- WS2812B 教材 -->
-    <div id="panelWs" hidden>
+    <div id="panelWs" class="panel" style="--accent2:#38e07b" hidden>
       <div class="panel-head">
         <h2>WS2812B · 學習動畫</h2>
         <span class="tag">6 個步驟</span>
@@ -417,6 +433,10 @@
         單線可定址 LED 燈條（<b>DIN</b>），800kHz 位元時序、每顆 24 bit（GRB）。<br>
         從「一顆紅色」到「追逐燈」，6 個步驟、每步都有互動動畫。
       </p>
+      
+      <div class="photos-title">實物照片</div>
+      <div class="photos"><figure><img src="img/pmod/ws2812b-front.jpg" alt="正面（燈條）" loading="lazy"><figcaption>正面（燈條）</figcaption></figure><figure><img src="img/pmod/ws2812b-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+
       <div class="grid">
         <a class="card" href="ws2812b/step1.html">
           <div class="thumb"><img src="img/ws_step1.png" alt="ws step1" loading="lazy"></div>
@@ -477,7 +497,7 @@
 
 
     <!-- VGA 教材 -->
-    <div id="panelVga" hidden>
+    <div id="panelVga" class="panel" style="--accent2:#3ad0e6" hidden>
       <div class="panel-head">
         <h2>VGA · 學習動畫</h2>
         <span class="tag">6 個步驟</span>
@@ -486,6 +506,10 @@
         640×480@60、<b>6-bit 色</b>（R/G/B 各 2 bit）、25.125MHz 像素時脈。<br>
         從「針腳與顯示原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
       </p>
+      
+      <div class="photos-title">實物照片</div>
+      <div class="photos"><figure><img src="img/pmod/vga-front.jpg" alt="正面" loading="lazy"><figcaption>正面</figcaption></figure><figure><img src="img/pmod/vga-connector.jpg" alt="VGA 接頭（DB-15）" loading="lazy"><figcaption>VGA 接頭（DB-15）</figcaption></figure><figure><img src="img/pmod/vga-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+
       <div class="grid">
         <a class="card" href="vga/step1.html">
           <div class="thumb"><img src="img/vga_step1.png" alt="vga step1" loading="lazy"></div>
@@ -546,7 +570,7 @@
 
 
     <!-- HDMI 教材 -->
-    <div id="panelHdmi" hidden>
+    <div id="panelHdmi" class="panel" style="--accent2:#a78bfa" hidden>
       <div class="panel-head">
         <h2>HDMI · 學習動畫</h2>
         <span class="tag">6 個步驟</span>
@@ -555,6 +579,10 @@
         透過 <b>SIL164</b>（DVI 發射器）輸出，640×480@60、<b>2:2:1 色</b>（5-bit）。<br>
         從「針腳與 DVI 原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
       </p>
+      
+      <div class="photos-title">實物照片</div>
+      <div class="photos"><figure><img src="img/pmod/hdmi-front.jpg" alt="正面" loading="lazy"><figcaption>正面</figcaption></figure><figure><img src="img/pmod/hdmi-connector.jpg" alt="HDMI 接頭" loading="lazy"><figcaption>HDMI 接頭</figcaption></figure><figure><img src="img/pmod/hdmi-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+
       <div class="grid">
         <a class="card" href="hdmi/step1.html">
           <div class="thumb"><img src="img/hdmi_step1.png" alt="hdmi step1" loading="lazy"></div>
