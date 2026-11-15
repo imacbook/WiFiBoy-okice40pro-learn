@@ -72,14 +72,14 @@
   }
   .pmod:hover{border-color:#4a6396;transform:translateY(-2px)}
   .pmod.active{
-    border-color:var(--accent);
+    border-color:var(--pmod-accent);
     background:linear-gradient(180deg,#1a2438,#121c33);
-    box-shadow:0 0 0 1px #ffd54a55, 0 10px 28px #05080f;
+    box-shadow:0 0 0 2px var(--pmod-accent), 0 10px 28px #05080f;
   }
-  .pmod.active .pmod-name{color:var(--accent)}
+  .pmod.active .pmod-name{color:var(--pmod-accent)}
   .pmod.active::after{
     content:"目前";position:absolute;top:7px;right:7px;
-    font-size:9px;font-weight:800;color:#0b1020;background:var(--accent);
+    font-size:9px;font-weight:800;color:#0b1020;background:var(--pmod-accent);
     padding:1px 6px;border-radius:999px;letter-spacing:.5px;
   }
   .pmod svg{width:38px;height:38px;display:block;margin:0 auto 8px}
@@ -101,6 +101,12 @@
   .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:0 0 20px}
   .photos figure{margin:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0d1526}
   .photos img{width:100%;height:140px;object-fit:cover;display:block}
+  .photos img{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;z-index:10000;background:rgba(5,8,15,.94);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+  .lightbox img{max-width:92vw;max-height:80vh;border-radius:12px;box-shadow:0 24px 70px #000;background:#fff}
+  .lightbox-cap{color:var(--dim);font-size:13px;margin-top:14px}
+  .lightbox-hint{color:#5d6c8e;font-size:11px;margin-top:6px}
   .photos figcaption{font-size:10.5px;color:var(--dim);padding:6px 8px;text-align:center}
   .panel-desc b{color:var(--accent)}
 
@@ -182,7 +188,7 @@
     <h2 class="sec-title">PMOD 外設與學習教材</h2>
 
     <div class="pmods">
-      <button class="pmod active" data-pmod="seg">
+      <button class="pmod active" data-pmod="seg" style="--pmod-accent:#ffd54a">
         <svg viewBox="0 0 48 48" fill="#ffd54a">
           <rect x="10" y="5" width="28" height="4" rx="2"/>
           <rect x="36" y="8" width="4" height="16" rx="2"/>
@@ -196,7 +202,7 @@
         <div class="pmod-desc">共陰直驅 · A~G + 2 位數</div>
       </button>
 
-      <button class="pmod" data-pmod="rgb6">
+      <button class="pmod" data-pmod="rgb6" style="--pmod-accent:#ff7a7a">
         <svg viewBox="0 0 48 48">
           <circle cx="14" cy="24" r="8" fill="#ff5a5a" opacity=".95"/>
           <circle cx="24" cy="24" r="8" fill="#38e07b" opacity=".95"/>
@@ -207,7 +213,7 @@
         <div class="pmod-desc">3×6 矩陣（R/G/B + D0~D5）</div>
       </button>
 
-      <button class="pmod" data-pmod="vga">
+      <button class="pmod" data-pmod="vga" style="--pmod-accent:#3ad0e6">
         <svg viewBox="0 0 48 48" fill="none" stroke="#3ad0e6" stroke-width="2.6">
           <rect x="5" y="7" width="38" height="26" rx="3"/>
           <path d="M18 33 v5 M30 33 v5 M14 41 h20" stroke-linecap="round"/>
@@ -217,7 +223,7 @@
         <div class="pmod-desc">6-bit 色（R/G/B 各 2bit）+ HS/VS</div>
       </button>
 
-      <button class="pmod" data-pmod="hdmi">
+      <button class="pmod" data-pmod="hdmi" style="--pmod-accent:#a78bfa">
         <svg viewBox="0 0 48 48" fill="none" stroke="#a78bfa" stroke-width="2.4">
           <path d="M9 14 h30 l-3 8 h-24 z" />
           <path d="M12 22 v10 h24 v-10" />
@@ -228,7 +234,7 @@
         <div class="pmod-desc">SIL164CT64 DVI 發射器（2:2:1）</div>
       </button>
 
-      <button class="pmod" data-pmod="ws2812b">
+      <button class="pmod" data-pmod="ws2812b" style="--pmod-accent:#38e07b">
         <svg viewBox="0 0 48 48">
           <rect x="3" y="20" width="42" height="8" rx="4" fill="#263352"/>
           <circle cx="12" cy="24" r="3.4" fill="#ffd54a"/>
@@ -667,6 +673,10 @@
   </footer>
 </div>
 
+<div id="lightbox" class="lightbox" hidden>
+  <img id="lightboxImg" alt="">
+  <div class="lightbox-cap" id="lightboxCap"></div>
+
 <script>
 (function(){
   const INFO = {
@@ -731,10 +741,28 @@
   btns.forEach(b => b.addEventListener('click', () => select(b.dataset.pmod)));
 
   // 預設：7 段顯示器；可用 ?pmod=vga 直接指定
+  // 照片放大
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightboxImg');
+  const lbCap = document.getElementById('lightboxCap');
+  document.querySelectorAll('.photos img').forEach(img => {
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lbImg.alt = img.alt || '';
+      lbCap.textContent = img.alt || '';
+      lb.hidden = false;
+    });
+  });
+  lb.addEventListener('click', () => { lb.hidden = true; });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') lb.hidden = true; });
+
   const params = new URLSearchParams(location.search);
   const pre = params.get('pmod');
   select(pre && INFO[pre] ? pre : 'seg');
 })();
 </script>
+
+  <div class="lightbox-hint">點任意處或按 Esc 關閉</div>
+</div>
 </body>
 </html>
