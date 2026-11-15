@@ -108,6 +108,23 @@
   .lightbox-cap{color:var(--dim);font-size:13px;margin-top:14px}
   .lightbox-hint{color:#5d6c8e;font-size:11px;margin-top:6px}
   .photos figcaption{font-size:10.5px;color:var(--dim);padding:6px 8px;text-align:center}
+  .photo-viewer{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 20px}
+  @media(min-width:700px){.photo-viewer{grid-template-columns:150px 1fr}}
+  .photo-tabs{display:flex;flex-direction:row;flex-wrap:wrap;gap:8px}
+  @media(min-width:700px){.photo-tabs{flex-direction:column;flex-wrap:nowrap}}
+  .ptab{border:1px solid var(--line);background:#0d1526;color:var(--text);padding:9px 12px;
+    border-radius:10px;cursor:pointer;font-size:12px;font-family:inherit;transition:.18s}
+  .ptab:hover{border-color:#4a6396}
+  .ptab.active{border-color:var(--accent2,var(--accent));color:var(--accent2,var(--accent));background:#1a2438}
+  .photo-main{margin:0;position:relative;border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;background:#0d1526;min-height:240px}
+  .photo-main.skeleton{background:linear-gradient(90deg,#0d1526 25%,#16203a 50%,#0d1526 75%);
+    background-size:200% 100%;animation:shimmer 1.2s linear infinite}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .photo-img{width:100%;height:280px;object-fit:cover;display:block;cursor:zoom-in;
+    opacity:0;transition:opacity .35s}
+  .photo-img.loaded{opacity:1}
+  .photo-cap{font-size:11px;color:var(--dim);padding:8px 12px;text-align:center;background:#0b1220}
   .panel-desc b{color:var(--accent)}
 
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -259,8 +276,14 @@
       </p>
 
       
-      <div class="photos-title">實物照片</div>
-      <div class="photos"><figure><img src="img/pmod/7segment-front.jpg" alt="正面（5621AS 兩位數）" loading="lazy"><figcaption>正面（5621AS 兩位數）</figcaption></figure><figure><img src="img/pmod/7segment-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+      <div class="photos-title">實物照片（點圖可放大）</div>
+      <div class="photo-viewer">
+        <div class="photo-tabs"><button class="ptab active" data-src="img/pmod/7segment-front.jpg" data-cap="正面（5621AS 兩位數）">正面</button><button class="ptab" data-src="img/pmod/7segment-back.jpg" data-cap="背面（接腳）">背面</button></div>
+        <figure class="photo-main skeleton">
+          <img class="photo-img" src="img/pmod/7segment-front.jpg" alt="正面（5621AS 兩位數）">
+          <figcaption class="photo-cap">正面（5621AS 兩位數）</figcaption>
+        </figure>
+      </div>
 
       <div class="grid">
         <a class="card" href="step1.html">
@@ -367,8 +390,14 @@
         從「點亮一顆」到「呼吸燈 PWM」，6 個步驟、每步都有互動動畫。
       </p>
       
-      <div class="photos-title">實物照片</div>
-      <div class="photos"><figure><img src="img/pmod/rgb6-front.jpg" alt="正面（6 顆 RGB LED）" loading="lazy"><figcaption>正面（6 顆 RGB LED）</figcaption></figure><figure><img src="img/pmod/rgb6-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+      <div class="photos-title">實物照片（點圖可放大）</div>
+      <div class="photo-viewer">
+        <div class="photo-tabs"><button class="ptab active" data-src="img/pmod/rgb6-front.jpg" data-cap="正面（6 顆 RGB LED）">正面</button><button class="ptab" data-src="img/pmod/rgb6-back.jpg" data-cap="背面（接腳）">背面</button></div>
+        <figure class="photo-main skeleton">
+          <img class="photo-img" src="img/pmod/rgb6-front.jpg" alt="正面（6 顆 RGB LED）">
+          <figcaption class="photo-cap">正面（6 顆 RGB LED）</figcaption>
+        </figure>
+      </div>
 
       <div class="grid">
         <a class="card" href="rgb6/step1.html">
@@ -440,8 +469,14 @@
         從「一顆紅色」到「追逐燈」，6 個步驟、每步都有互動動畫。
       </p>
       
-      <div class="photos-title">實物照片</div>
-      <div class="photos"><figure><img src="img/pmod/ws2812b-front.jpg" alt="正面（燈條）" loading="lazy"><figcaption>正面（燈條）</figcaption></figure><figure><img src="img/pmod/ws2812b-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+      <div class="photos-title">實物照片（點圖可放大）</div>
+      <div class="photo-viewer">
+        <div class="photo-tabs"><button class="ptab active" data-src="img/pmod/ws2812b-front.jpg" data-cap="正面（燈條）">正面</button><button class="ptab" data-src="img/pmod/ws2812b-back.jpg" data-cap="背面（接腳）">背面</button></div>
+        <figure class="photo-main skeleton">
+          <img class="photo-img" src="img/pmod/ws2812b-front.jpg" alt="正面（燈條）">
+          <figcaption class="photo-cap">正面（燈條）</figcaption>
+        </figure>
+      </div>
 
       <div class="grid">
         <a class="card" href="ws2812b/step1.html">
@@ -513,8 +548,14 @@
         從「針腳與顯示原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
       </p>
       
-      <div class="photos-title">實物照片</div>
-      <div class="photos"><figure><img src="img/pmod/vga-front.jpg" alt="正面" loading="lazy"><figcaption>正面</figcaption></figure><figure><img src="img/pmod/vga-connector.jpg" alt="VGA 接頭（DB-15）" loading="lazy"><figcaption>VGA 接頭（DB-15）</figcaption></figure><figure><img src="img/pmod/vga-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+      <div class="photos-title">實物照片（點圖可放大）</div>
+      <div class="photo-viewer">
+        <div class="photo-tabs"><button class="ptab active" data-src="img/pmod/vga-front.jpg" data-cap="正面">正面</button><button class="ptab" data-src="img/pmod/vga-connector.jpg" data-cap="VGA 接頭（DB-15）">接頭</button><button class="ptab" data-src="img/pmod/vga-back.jpg" data-cap="背面（接腳）">背面</button></div>
+        <figure class="photo-main skeleton">
+          <img class="photo-img" src="img/pmod/vga-front.jpg" alt="正面">
+          <figcaption class="photo-cap">正面</figcaption>
+        </figure>
+      </div>
 
       <div class="grid">
         <a class="card" href="vga/step1.html">
@@ -586,8 +627,14 @@
         從「針腳與 DVI 原理」到「移動方塊」，6 個步驟、每步都有互動動畫。
       </p>
       
-      <div class="photos-title">實物照片</div>
-      <div class="photos"><figure><img src="img/pmod/hdmi-front.jpg" alt="正面" loading="lazy"><figcaption>正面</figcaption></figure><figure><img src="img/pmod/hdmi-connector.jpg" alt="HDMI 接頭" loading="lazy"><figcaption>HDMI 接頭</figcaption></figure><figure><img src="img/pmod/hdmi-back.jpg" alt="背面（接腳）" loading="lazy"><figcaption>背面（接腳）</figcaption></figure></div>
+      <div class="photos-title">實物照片（點圖可放大）</div>
+      <div class="photo-viewer">
+        <div class="photo-tabs"><button class="ptab active" data-src="img/pmod/hdmi-front.jpg" data-cap="正面">正面</button><button class="ptab" data-src="img/pmod/hdmi-connector.jpg" data-cap="HDMI 接頭">接頭</button><button class="ptab" data-src="img/pmod/hdmi-back.jpg" data-cap="背面（接腳）">背面</button></div>
+        <figure class="photo-main skeleton">
+          <img class="photo-img" src="img/pmod/hdmi-front.jpg" alt="正面">
+          <figcaption class="photo-cap">正面</figcaption>
+        </figure>
+      </div>
 
       <div class="grid">
         <a class="card" href="hdmi/step1.html">
@@ -741,18 +788,41 @@
   btns.forEach(b => b.addEventListener('click', () => select(b.dataset.pmod)));
 
   // 預設：7 段顯示器；可用 ?pmod=vga 直接指定
-  // 照片放大
+  // 照片：切換 + 骨架 + 放大
   const lb = document.getElementById('lightbox');
   const lbImg = document.getElementById('lightboxImg');
   const lbCap = document.getElementById('lightboxCap');
-  document.querySelectorAll('.photos img').forEach(img => {
+
+  document.querySelectorAll('.photo-viewer').forEach(viewer => {
+    const main = viewer.querySelector('.photo-main');
+    const img  = viewer.querySelector('.photo-img');
+    const cap  = viewer.querySelector('.photo-cap');
+
+    viewer.querySelectorAll('.ptab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        viewer.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        main.classList.add('skeleton');
+        img.classList.remove('loaded');
+        img.src = tab.dataset.src;
+        img.alt = tab.dataset.cap;
+        cap.textContent = tab.dataset.cap;
+      });
+    });
+
+    img.addEventListener('load', () => {
+      main.classList.remove('skeleton');
+      img.classList.add('loaded');
+    });
+
     img.addEventListener('click', () => {
       lbImg.src = img.src;
-      lbImg.alt = img.alt || '';
-      lbCap.textContent = img.alt || '';
+      lbImg.alt = cap.textContent;
+      lbCap.textContent = cap.textContent;
       lb.hidden = false;
     });
   });
+
   lb.addEventListener('click', () => { lb.hidden = true; });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') lb.hidden = true; });
 

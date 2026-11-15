@@ -42,6 +42,17 @@
   .hl-box{fill:none;stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 5;opacity:0;transition:opacity .3s}
   .hl-box.on{opacity:1}
   .bind{font-size:20px;font-weight:800;fill:var(--accent);font-family:"SF Mono",Menlo,monospace;text-anchor:middle}
+
+  /* ==== 步驟頁實物照片 ==== */
+  .photo-strip{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#0e1628}
+  .photo-strip-title{font-size:12px;color:var(--dim);margin-bottom:10px;letter-spacing:.4px}
+  .photo-strip-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .photo-strip a{display:block;text-decoration:none;color:var(--dim);font-size:11px;text-align:center}
+  .photo-strip img{width:100%;height:110px;object-fit:cover;border-radius:8px;
+    border:1px solid var(--line);display:block;margin-bottom:4px;cursor:zoom-in;
+    opacity:0;transition:opacity .35s,border-color .18s}
+  .photo-strip img.loaded{opacity:1}
+  .photo-strip img:hover{border-color:#4a6396}
 </style>
 </head>
 <body>
@@ -85,6 +96,11 @@
   </div>
   <div class="narration" id="narr"></div>
   <div class="hint">用上方按鈕切換章節（或 ← → 鍵）。</div>
+  
+  <div class="photo-strip">
+    <div class="photo-strip-title">實物照片（點圖另開大圖）</div>
+    <div class="photo-strip-grid"><a href="../img/pmod/vga-connector.jpg" target="_blank" rel="noopener"><img src="../img/pmod/vga-connector.jpg" alt="VGA 接頭（DB-15）" loading="lazy"><span>VGA 接頭（DB-15）</span></a><a href="../img/pmod/vga-front.jpg" target="_blank" rel="noopener"><img src="../img/pmod/vga-front.jpg" alt="正面" loading="lazy"><span>正面</span></a><a href="../img/pmod/vga-back.jpg" target="_blank" rel="noopener"><img src="../img/pmod/vga-back.jpg" alt="背面（接腳）" loading="lazy"><span>背面（接腳）</span></a></div>
+  </div>
   <div class="nav">
     <button id="prev">← 上一章</button>
     <div class="spacer"></div>
@@ -161,6 +177,13 @@
   else if(MODE === 'box') setInterval(boxTick, 30);
   else setInterval(tick, 12);
 })();
+</script>
+
+<script>
+document.querySelectorAll('.photo-strip img').forEach(function(img){
+  if(img.complete) img.classList.add('loaded');
+  img.addEventListener('load', function(){ img.classList.add('loaded'); });
+});
 </script>
 </body>
 </html>
